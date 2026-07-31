@@ -1,0 +1,1752 @@
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createClient } from "@supabase/supabase-js";
+import {
+  ExternalLink,
+  User,
+  Globe,
+  Search,
+  Shield,
+  Check,
+  Phone,
+  ArrowRight,
+  X,
+  Edit,
+  PlusCircle,
+  Sparkles,
+  Folder,
+  Trash2,
+  Mail,
+  MapPin,
+  Menu,
+  LogOut,
+  Lock,
+  GraduationCap,
+  Save,
+  Image as ImageIcon,
+  UploadCloud,
+} from "lucide-react";
+
+/* =========================================================================
+   1. KONFIGURASI SUPABASE
+   Jika environment variable tidak tersedia, aplikasi otomatis fallback
+   ke state lokal (in-memory) sehingga tetap berjalan tanpa error.
+   ========================================================================= */
+const SUPABASE_URL =
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || "";
+const SUPABASE_ANON_KEY =
+  (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SUPABASE_ANON_KEY) || "";
+
+let supabase = null;
+try {
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+} catch (err) {
+  console.warn("Supabase tidak terhubung, menggunakan data lokal.", err);
+  supabase = null;
+}
+
+const PRODUCTS_TABLE = "showcase_products";
+const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+/* =========================================================================
+   2. PROFIL KELOMPOK / IDENTITAS SEKOLAH
+   ========================================================================= */
+const GROUP_PROFILE = {
+  name: "Kriya Nusantara",
+  fullName: "Kriya Nusantara PKWU",
+  tagline: "Merajut Kreativitas, Menenun Kewirausahaan",
+  school: "SMK Negeri 1 Nusantara Jaya",
+  className: "XI Tata Niaga 2",
+  schoolYear: "2025/2026",
+  subject: "Prakarya dan Kewirausahaan (PKWU)",
+  waNumber: "628123456789",
+  email: "kriyanusantara.pkwu@gmail.com",
+  address: "Jl. Pendidikan No. 17, Kec. Sukamaju, Kota Nusantara",
+};
+
+const BADGES = [
+  { icon: "Sparkles", label: "Original Design" },
+  { icon: "Check", label: "Handmade & Eco-Friendly" },
+  { icon: "GraduationCap", label: "Inovasi Siswa PKWU" },
+];
+
+const ADMIN_PASSWORD = "pkwu2026";
+
+/* =========================================================================
+   3. DATA KATEGORI & MOCK DATA PRODUK
+   ========================================================================= */
+const CATEGORIES = [
+  "Semua",
+  "Kerajinan Anyaman",
+  "Aksesoris & Fashion",
+  "Dekorasi Rumah",
+  "Alat Tulis Daur Ulang",
+];
+
+const initialProducts = [
+  {
+    id: "prod-001",
+    name: "Tas Anyam Pandan \"Selaras\"",
+    creator: "Ayu Lestari",
+    category: "Kerajinan Anyaman",
+    image:
+      "https://images.unsplash.com/photo-1591561954557-26941169b49e?w=900&q=80",
+    description:
+      "Tas jinjing berbahan dasar daun pandan kering yang dianyam manual dengan pola tradisional Nusantara, dipadukan sentuhan desain kontemporer agar cocok dipakai sehari-hari.",
+    specs:
+      "Daun pandan kering pilihan, benang katun untuk penguat jahitan, kain lapis bagian dalam dari katun blacu, resleting anti karat.",
+    process:
+      "Proses dimulai dari pengeringan daun pandan selama 3 hari, dianyam dengan pola \"kepang tiga\" khas daerah, lalu dijahit dan dilapisi kain bagian dalam. Setiap tas membutuhkan waktu pengerjaan sekitar 2 hari.",
+    personalWebsite: "https://ayulestari.my.id",
+  },
+  {
+    id: "prod-002",
+    name: "Gelang Makrame \"Untaian\"",
+    creator: "Bima Saputra",
+    category: "Aksesoris & Fashion",
+    image:
+      "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=900&q=80",
+    description:
+      "Gelang makrame dengan simpul ganda dan manik kayu alami, dirancang sebagai aksesoris unisex yang ringan namun tetap estetik untuk berbagai gaya busana.",
+    specs:
+      "Tali katun waxed 2mm, manik kayu jati belanda, pengunci kuningan anti karat.",
+    process:
+      "Menggunakan teknik simpul square knot dan spiral knot yang dirangkai berlapis. Setiap gelang diperiksa kekuatan simpulnya sebelum tahap finishing dan pengemasan.",
+    personalWebsite: "https://bimasaputra.carrd.co",
+  },
+  {
+    id: "prod-003",
+    name: "Vas Bunga Keramik \"Lempung\"",
+    creator: "Citra Dewi",
+    category: "Dekorasi Rumah",
+    image:
+      "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=900&q=80",
+    description:
+      "Vas bunga dari tanah liat lokal yang dibentuk dengan teknik pilin (coil), memiliki tekstur permukaan alami yang menonjolkan kesan artisan dan hangat.",
+    specs:
+      "Tanah liat lokal kualitas tinggi, glasir food-safe non-toxic, dibakar pada suhu 1000°C.",
+    process:
+      "Dibentuk manual tanpa cetakan menggunakan teknik pilin, dikeringkan selama 5 hari, kemudian dibakar dua kali (biscuit firing dan glaze firing) agar hasil akhir kuat dan tahan lama.",
+    personalWebsite: "https://citradewi.notion.site",
+  },
+  {
+    id: "prod-004",
+    name: "Buku Catatan \"Kertas Kembali\"",
+    creator: "Dimas Prasetyo",
+    category: "Alat Tulis Daur Ulang",
+    image:
+      "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=900&q=80",
+    description:
+      "Buku catatan dengan kertas daur ulang dari limbah kertas sekolah, dijilid manual menggunakan teknik jahit benang (Coptic binding) agar buku dapat dibuka rata 180 derajat.",
+    specs:
+      "Kertas daur ulang 100 gsm, sampul karton tebal berlapis kain linen, benang katun untuk penjilidan.",
+    process:
+      "Limbah kertas dipilah, dihancurkan, dan dicetak ulang menjadi lembaran baru secara manual. Proses penjilidan dilakukan dengan tangan untuk menjaga kekuatan dan tampilan estetik buku.",
+    personalWebsite: "https://dimasprasetyo.pages.dev",
+  },
+  {
+    id: "prod-005",
+    name: "Dompet Kulit Nabati \"Wastra\"",
+    creator: "Erlangga Putra",
+    category: "Aksesoris & Fashion",
+    image:
+      "https://images.unsplash.com/photo-1627123424574-724758594e93?w=900&q=80",
+    description:
+      "Dompet ringkas berbahan kulit nabati (vegan leather) dengan motif emboss terinspirasi wastra Nusantara, cocok untuk kebutuhan harian yang ringkas dan tahan lama.",
+    specs:
+      "Kulit nabati berbasis serat nanas, benang nilon jahit ganda, pelapis anti air pada bagian dalam.",
+    process:
+      "Pola dipotong menggunakan cetakan manual, motif emboss dicetak dengan alat press panas, lalu dijahit ganda pada tiap sisi untuk memastikan ketahanan jangka panjang.",
+    personalWebsite: "https://erlanggaputra.vercel.app",
+  },
+  {
+    id: "prod-006",
+    name: "Lampu Hias \"Cahaya Bambu\"",
+    creator: "Fina Amelia",
+    category: "Dekorasi Rumah",
+    image:
+      "https://images.unsplash.com/photo-1543198126-b1cc0e2c4b06?w=900&q=80",
+    description:
+      "Lampu hias meja dari anyaman bambu tipis yang menghasilkan siluet cahaya berpola alami, cocok untuk mempercantik ruang belajar maupun ruang tamu.",
+    specs:
+      "Bilah bambu tipis anti rayap, dudukan kayu mahoni, kabel dan fitting lampu ber-SNI.",
+    process:
+      "Bambu dibelah tipis lalu dianyam mengelilingi rangka bulat, dijemur untuk mengurangi kelembapan, dan dirangkai dengan dudukan kayu serta instalasi kabel yang telah diuji keamanannya.",
+    personalWebsite: "https://finaamelia.github.io",
+  },
+];
+
+/* =========================================================================
+   4. DATA ANGGOTA KELOMPOK
+   ========================================================================= */
+const members = [
+  {
+    id: "mem-01",
+    name: "Ayu Lestari",
+    role: "Ketua Kelompok & Desainer Anyaman",
+    product: "Tas Anyam Pandan \"Selaras\"",
+    photo: "https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?w=400&q=80",
+    personalWebsite: "https://ayulestari.my.id",
+  },
+  {
+    id: "mem-02",
+    name: "Bima Saputra",
+    role: "Produksi & Quality Control",
+    product: "Gelang Makrame \"Untaian\"",
+    photo: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&q=80",
+    personalWebsite: "https://bimasaputra.carrd.co",
+  },
+  {
+    id: "mem-03",
+    name: "Citra Dewi",
+    role: "Desainer Produk Keramik",
+    product: "Vas Bunga Keramik \"Lempung\"",
+    photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80",
+    personalWebsite: "https://citradewi.notion.site",
+  },
+  {
+    id: "mem-04",
+    name: "Dimas Prasetyo",
+    role: "Bendahara & Riset Bahan Baku",
+    product: "Buku Catatan \"Kertas Kembali\"",
+    photo: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&q=80",
+    personalWebsite: "https://dimasprasetyo.pages.dev",
+  },
+  {
+    id: "mem-05",
+    name: "Erlangga Putra",
+    role: "Marketing & Dokumentasi",
+    product: "Dompet Kulit Nabati \"Wastra\"",
+    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
+    personalWebsite: "https://erlanggaputra.vercel.app",
+  },
+  {
+    id: "mem-06",
+    name: "Fina Amelia",
+    role: "Developer Web Personal & Desain Grafis",
+    product: "Lampu Hias \"Cahaya Bambu\"",
+    photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80",
+    personalWebsite: "https://finaamelia.github.io",
+  },
+];
+
+const NAV_ITEMS = [
+  { id: "beranda", label: "Beranda" },
+  { id: "katalog", label: "Katalog Karya" },
+  { id: "anggota", label: "Anggota & Web Personal" },
+  { id: "kontak", label: "Kontak" },
+];
+
+/* =========================================================================
+   5. ADMIN CONTEXT
+   ========================================================================= */
+const AdminContext = createContext(null);
+
+function AdminProvider({ children }) {
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  const login = (password) => {
+    if (password === ADMIN_PASSWORD) {
+      setIsAdmin(true);
+      return true;
+    }
+    return false;
+  };
+
+  const logout = () => setIsAdmin(false);
+
+  return (
+    <AdminContext.Provider value={{ isAdmin, login, logout }}>
+      {children}
+    </AdminContext.Provider>
+  );
+}
+
+function useAdmin() {
+  const ctx = useContext(AdminContext);
+  if (!ctx) throw new Error("useAdmin harus dipakai di dalam AdminProvider");
+  return ctx;
+}
+
+/* =========================================================================
+   6. KOMPONEN KECIL / UTILITAS
+   ========================================================================= */
+function SectionEyebrow({ children }) {
+  return (
+    <span className="inline-flex items-center gap-2 text-xs font-semibold tracking-[0.2em] uppercase text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full px-3 py-1">
+      <Folder size={13} />
+      {children}
+    </span>
+  );
+}
+
+function CategoryBadge({ children }) {
+  return (
+    <span className="inline-block text-[11px] font-semibold uppercase tracking-wide bg-amber-100 text-amber-800 border border-amber-200 rounded-full px-3 py-1">
+      {children}
+    </span>
+  );
+}
+
+function PrimaryButton({ children, onClick, className = "", type = "button" }) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      className={
+        "inline-flex items-center justify-center gap-2 rounded-full bg-emerald-700 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-emerald-900/10 transition hover:bg-emerald-800 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 " +
+        className
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+function SecondaryButton({ children, onClick, className = "", type = "button" }) {
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      className={
+        "inline-flex items-center justify-center gap-2 rounded-full border border-emerald-700 px-6 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-50 active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2 " +
+        className
+      }
+    >
+      {children}
+    </button>
+  );
+}
+
+/* =========================================================================
+   7. HEADER & NAVIGASI
+   ========================================================================= */
+function Header({ activeSection, onNavigate, onOpenAdminLogin }) {
+  const { isAdmin, logout } = useAdmin();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleNav = (id) => {
+    onNavigate(id);
+    setMobileOpen(false);
+  };
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-emerald-900/5 bg-[#FBFAF6]/90 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
+        <button
+          onClick={() => handleNav("beranda")}
+          className="flex items-center gap-3 text-left"
+        >
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-700 text-white shadow-sm">
+            <Sparkles size={20} />
+          </span>
+          <span className="leading-tight">
+            <span
+              className="block text-lg font-bold text-emerald-950"
+              style={{ fontFamily: "'Fraunces', 'Georgia', serif" }}
+            >
+              {GROUP_PROFILE.name}
+            </span>
+            <span className="block text-[11px] uppercase tracking-[0.18em] text-emerald-700">
+              Showcase Karya PKWU
+            </span>
+          </span>
+        </button>
+
+        <nav className="hidden items-center gap-1 md:flex">
+          {NAV_ITEMS.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => handleNav(item.id)}
+              className={
+                "rounded-full px-4 py-2 text-sm font-medium transition " +
+                (activeSection === item.id
+                  ? "bg-emerald-700 text-white"
+                  : "text-emerald-950 hover:bg-emerald-50")
+              }
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="hidden items-center gap-3 md:flex">
+          {isAdmin ? (
+            <button
+              onClick={logout}
+              className="inline-flex items-center gap-2 rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+            >
+              <LogOut size={16} />
+              Keluar Admin
+            </button>
+          ) : (
+            <button
+              onClick={onOpenAdminLogin}
+              className="inline-flex items-center gap-2 rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 transition hover:bg-stone-100"
+            >
+              <Shield size={16} />
+              Admin
+            </button>
+          )}
+        </div>
+
+        <button
+          className="rounded-full border border-stone-300 p-2 text-emerald-900 md:hidden"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label="Buka menu navigasi"
+        >
+          {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </div>
+
+      {mobileOpen && (
+        <div className="border-t border-emerald-900/5 bg-[#FBFAF6] px-5 pb-5 pt-2 md:hidden">
+          <div className="flex flex-col gap-1">
+            {NAV_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleNav(item.id)}
+                className={
+                  "rounded-xl px-4 py-3 text-left text-sm font-medium transition " +
+                  (activeSection === item.id
+                    ? "bg-emerald-700 text-white"
+                    : "text-emerald-950 hover:bg-emerald-50")
+                }
+              >
+                {item.label}
+              </button>
+            ))}
+            {isAdmin ? (
+              <button
+                onClick={logout}
+                className="mt-2 inline-flex items-center gap-2 rounded-xl border border-stone-300 px-4 py-3 text-sm font-medium text-stone-700"
+              >
+                <LogOut size={16} />
+                Keluar Admin
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  onOpenAdminLogin();
+                  setMobileOpen(false);
+                }}
+                className="mt-2 inline-flex items-center gap-2 rounded-xl border border-stone-300 px-4 py-3 text-sm font-medium text-stone-700"
+              >
+                <Shield size={16} />
+                Masuk sebagai Admin
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+/* =========================================================================
+   8. HERO SECTION
+   ========================================================================= */
+const BADGE_ICONS = { Sparkles, Check, GraduationCap };
+
+function Hero({ onNavigate }) {
+  return (
+    <section
+      id="beranda"
+      className="relative overflow-hidden bg-gradient-to-b from-emerald-50 via-[#FBFAF6] to-[#FBFAF6]"
+    >
+      <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-amber-200/40 blur-3xl" />
+      <div className="absolute -left-20 top-40 h-72 w-72 rounded-full bg-emerald-200/50 blur-3xl" />
+
+      <div className="relative mx-auto flex max-w-7xl flex-col-reverse items-center gap-12 px-5 py-16 sm:px-8 lg:flex-row lg:py-24">
+        <div className="flex-1 text-center lg:text-left">
+          <SectionEyebrow>{GROUP_PROFILE.subject}</SectionEyebrow>
+
+          <h1
+            className="mt-6 text-4xl font-bold leading-[1.1] text-emerald-950 sm:text-5xl lg:text-6xl"
+            style={{ fontFamily: "'Fraunces', 'Georgia', serif" }}
+          >
+            {GROUP_PROFILE.tagline}
+          </h1>
+
+          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-stone-600 lg:mx-0">
+            Selamat datang di ruang pameran karya {GROUP_PROFILE.fullName}. Setiap
+            produk di sini dirancang, diproduksi, dan didokumentasikan langsung
+            oleh siswa {GROUP_PROFILE.className}, {GROUP_PROFILE.school}, sebagai
+            hasil pembelajaran mata pelajaran {GROUP_PROFILE.subject} tahun ajaran{" "}
+            {GROUP_PROFILE.schoolYear}.
+          </p>
+
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
+            <PrimaryButton onClick={() => onNavigate("katalog")}>
+              Jelajahi Karya
+              <ArrowRight size={16} />
+            </PrimaryButton>
+            <SecondaryButton onClick={() => onNavigate("anggota")}>
+              Anggota Kelompok
+            </SecondaryButton>
+          </div>
+
+          <div className="mt-10 flex flex-wrap justify-center gap-3 lg:justify-start">
+            {BADGES.map((badge) => {
+              const Icon = BADGE_ICONS[badge.icon] || Sparkles;
+              return (
+                <span
+                  key={badge.label}
+                  className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-4 py-2 text-xs font-semibold text-emerald-800 shadow-sm"
+                >
+                  <Icon size={14} className="text-emerald-600" />
+                  {badge.label}
+                </span>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="relative w-full max-w-md flex-1">
+          <div className="overflow-hidden rounded-[2rem] border-4 border-white shadow-xl shadow-emerald-900/10">
+            <img
+              src="https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=900&q=80"
+              alt={"Etalase karya kerajinan tangan " + GROUP_PROFILE.name}
+              className="h-80 w-full object-cover sm:h-96"
+            />
+          </div>
+          <div className="absolute -bottom-6 -left-6 hidden rounded-2xl border border-emerald-100 bg-white px-5 py-4 shadow-lg sm:block">
+            <p className="text-2xl font-bold text-emerald-800" style={{ fontFamily: "'Fraunces', serif" }}>
+              {initialProducts.length}+
+            </p>
+            <p className="text-xs font-medium text-stone-500">Karya dipamerkan</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================================
+   9. PRODUCT CARD
+   ========================================================================= */
+function ProductCard({ product, onOpenDetail }) {
+  return (
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+      <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
+        <img
+          src={product.image}
+          alt={product.name}
+          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.src =
+              "https://images.unsplash.com/photo-1618221469555-7f3ad97540d6?w=900&q=80";
+          }}
+        />
+        <div className="absolute left-3 top-3">
+          <CategoryBadge>{product.category}</CategoryBadge>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-3 p-5">
+        <div>
+          <h3
+            className="text-lg font-bold leading-snug text-emerald-950"
+            style={{ fontFamily: "'Fraunces', serif" }}
+          >
+            {product.name}
+          </h3>
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-stone-500">
+            <User size={13} />
+            Karya {product.creator}
+          </p>
+        </div>
+
+        <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-stone-600">
+          {product.description}
+        </p>
+
+        <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+          <button
+            onClick={() => onOpenDetail(product)}
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800"
+          >
+            Lihat Detail
+          </button>
+          <a
+            href={product.personalWebsite}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
+          >
+            Web Anggota
+            <ExternalLink size={14} />
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   10. PRODUCT DETAIL MODAL
+   ========================================================================= */
+function ProductModal({ product, onClose }) {
+  if (!product) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-emerald-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+      onClick={onClose}
+    >
+      <div
+        className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl bg-white sm:rounded-3xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-stone-700 shadow-md transition hover:bg-white"
+          aria-label="Tutup detail karya"
+        >
+          <X size={18} />
+        </button>
+
+        <div className="overflow-y-auto">
+          <img
+            src={product.image}
+            alt={product.name}
+            className="h-64 w-full object-cover sm:h-80"
+          />
+
+          <div className="space-y-6 p-6 sm:p-8">
+            <div>
+              <CategoryBadge>{product.category}</CategoryBadge>
+              <h2
+                className="mt-3 text-2xl font-bold text-emerald-950 sm:text-3xl"
+                style={{ fontFamily: "'Fraunces', serif" }}
+              >
+                {product.name}
+              </h2>
+              <p className="mt-1 flex items-center gap-1.5 text-sm text-stone-500">
+                <User size={14} />
+                Dibuat oleh {product.creator}
+              </p>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                Deskripsi Karya
+              </h3>
+              <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                {product.description}
+              </p>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                  Komposisi &amp; Spesifikasi Bahan
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                  {product.specs}
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                  Proses Pembuatan &amp; Keunggulan
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                  {product.process}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                Informasi Kreator
+              </h3>
+              <div className="mt-3 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-700 text-white">
+                    <User size={18} />
+                  </span>
+                  <div>
+                    <p className="font-semibold text-emerald-950">{product.creator}</p>
+                    <p className="text-xs text-stone-500">Anggota {GROUP_PROFILE.name}</p>
+                  </div>
+                </div>
+                <a
+                  href={product.personalWebsite}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                >
+                  <Globe size={15} />
+                  Buka Website Personal
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   11. CATALOG SECTION (FILTER + SEARCH + GRID)
+   ========================================================================= */
+function CatalogSection({ products, onOpenDetail }) {
+  const [activeCategory, setActiveCategory] = useState("Semua");
+  const [query, setQuery] = useState("");
+
+  const filtered = useMemo(() => {
+    return products.filter((p) => {
+      const matchCategory = activeCategory === "Semua" || p.category === activeCategory;
+      const q = query.trim().toLowerCase();
+      const matchQuery =
+        q === "" ||
+        p.name.toLowerCase().includes(q) ||
+        p.creator.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q);
+      return matchCategory && matchQuery;
+    });
+  }, [products, activeCategory, query]);
+
+  return (
+    <section id="katalog" className="bg-[#FBFAF6] py-16 sm:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <SectionEyebrow>Katalog Karya</SectionEyebrow>
+          <h2
+            className="mt-4 text-3xl font-bold text-emerald-950 sm:text-4xl"
+            style={{ fontFamily: "'Fraunces', serif" }}
+          >
+            Etalase Hasil Karya Kelompok
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
+            Telusuri seluruh produk yang telah dirancang dan diproduksi oleh
+            anggota kelompok. Gunakan filter kategori atau kolom pencarian untuk
+            menemukan karya tertentu.
+          </p>
+        </div>
+
+        <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className={
+                  "rounded-full border px-4 py-2 text-xs font-semibold transition sm:text-sm " +
+                  (activeCategory === cat
+                    ? "border-emerald-700 bg-emerald-700 text-white"
+                    : "border-stone-300 bg-white text-stone-600 hover:border-emerald-300 hover:text-emerald-700")
+                }
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="relative w-full sm:w-72">
+            <Search
+              size={16}
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"
+            />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              type="text"
+              placeholder="Cari nama, pembuat, atau deskripsi..."
+              className="w-full rounded-full border border-stone-300 bg-white py-2.5 pl-11 pr-4 text-sm text-stone-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+            />
+          </div>
+        </div>
+
+        {filtered.length === 0 ? (
+          <div className="mt-16 flex flex-col items-center gap-3 text-center">
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 text-stone-400">
+              <Search size={22} />
+            </span>
+            <p className="text-sm font-medium text-stone-600">
+              Belum ada karya yang cocok dengan pencarianmu.
+            </p>
+            <p className="text-xs text-stone-400">
+              Coba kata kunci lain atau pilih kategori "Semua".
+            </p>
+          </div>
+        ) : (
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onOpenDetail={onOpenDetail}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================================
+   12. MEMBERS SECTION
+   ========================================================================= */
+function MembersSection() {
+  return (
+    <section id="anggota" className="bg-emerald-950 py-16 text-white sm:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-700 bg-emerald-900 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-200">
+            <User size={13} />
+            Anggota Kelompok
+          </span>
+          <h2
+            className="mt-4 text-3xl font-bold sm:text-4xl"
+            style={{ fontFamily: "'Fraunces', serif" }}
+          >
+            Wajah &amp; Web Personal di Balik Setiap Karya
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-emerald-100/80 sm:text-base">
+            Setiap anggota mengelola website personal masing-masing sebagai
+            portofolio individu. Klik tombol di bawah untuk menjelajahinya.
+          </p>
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {members.map((member) => (
+            <div
+              key={member.id}
+              className="flex flex-col items-center rounded-2xl border border-emerald-800 bg-emerald-900/60 p-6 text-center transition hover:border-emerald-600"
+            >
+              <img
+                src={member.photo}
+                alt={member.name}
+                className="h-20 w-20 rounded-full border-4 border-emerald-700 object-cover"
+                onError={(e) => {
+                  e.currentTarget.src =
+                    "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&q=80";
+                }}
+              />
+              <h3 className="mt-4 text-lg font-bold" style={{ fontFamily: "'Fraunces', serif" }}>
+                {member.name}
+              </h3>
+              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-amber-300">
+                {member.role}
+              </p>
+              <p className="mt-3 text-sm text-emerald-100/80">
+                Karya: {member.product}
+              </p>
+              <a
+                href={member.personalWebsite}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-xs font-semibold text-emerald-900 transition hover:bg-emerald-100"
+              >
+                <Globe size={14} />
+                Buka Website Personal
+              </a>
+            </div>
+          ))}
+        </div>
+
+        <div className="mx-auto mt-14 max-w-3xl rounded-2xl border border-emerald-800 bg-emerald-900/60 p-6 text-center sm:p-8">
+          <GraduationCap className="mx-auto mb-3 text-amber-300" size={26} />
+          <p className="text-sm text-emerald-100/90 sm:text-base">
+            {GROUP_PROFILE.fullName} merupakan proyek kewirausahaan mata pelajaran{" "}
+            {GROUP_PROFILE.subject} kelas <strong>{GROUP_PROFILE.className}</strong>,{" "}
+            {GROUP_PROFILE.school}, tahun ajaran{" "}
+            <strong>{GROUP_PROFILE.schoolYear}</strong>.
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================================
+   13. CONTACT SECTION
+   ========================================================================= */
+function ContactSection() {
+  const [form, setForm] = useState({ name: "", contact: "", message: "" });
+  const [sent, setSent] = useState(false);
+
+  const handleChange = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const buildWaMessage = () => {
+    const lines = [
+      "Halo " + GROUP_PROFILE.fullName + "!",
+      "",
+      "Nama: " + (form.name || "-"),
+      "Kontak: " + (form.contact || "-"),
+      "Pesan:",
+      form.message || "-",
+    ];
+    return encodeURIComponent(lines.join("\n"));
+  };
+
+  const handleSendWa = () => {
+    const url = "https://wa.me/" + GROUP_PROFILE.waNumber + "?text=" + buildWaMessage();
+    window.open(url, "_blank", "noopener,noreferrer");
+    setSent(true);
+  };
+
+  return (
+    <section id="kontak" className="bg-[#FBFAF6] py-16 sm:py-24">
+      <div className="mx-auto max-w-5xl px-5 sm:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <SectionEyebrow>Kontak &amp; Kerjasama</SectionEyebrow>
+          <h2
+            className="mt-4 text-3xl font-bold text-emerald-950 sm:text-4xl"
+            style={{ fontFamily: "'Fraunces', serif" }}
+          >
+            Diskusi &amp; Peluang Kerjasama Karya
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
+            Tertarik berdiskusi, memberi apresiasi, atau membuka peluang
+            kerjasama pameran? Kirimkan pesan melalui form berikut.
+          </p>
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-5">
+          <div className="lg:col-span-3">
+            <div className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm sm:p-8">
+              <div className="space-y-5">
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-stone-700">
+                    Nama Lengkap
+                  </label>
+                  <input
+                    value={form.name}
+                    onChange={handleChange("name")}
+                    type="text"
+                    placeholder="Tuliskan nama kamu"
+                    className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-stone-700">
+                    Email / Nomor WhatsApp
+                  </label>
+                  <input
+                    value={form.contact}
+                    onChange={handleChange("contact")}
+                    type="text"
+                    placeholder="contoh@email.com atau 08xxxxxxxxxx"
+                    className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-stone-700">
+                    Pesan / Tanggapan
+                  </label>
+                  <textarea
+                    value={form.message}
+                    onChange={handleChange("message")}
+                    rows={4}
+                    placeholder="Tuliskan pesan, tanggapan, atau ajakan kerjasama..."
+                    className="w-full resize-none rounded-xl border border-stone-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  />
+                </div>
+
+                <PrimaryButton onClick={handleSendWa} className="w-full">
+                  <Phone size={16} />
+                  Kirim Pesan via WhatsApp
+                </PrimaryButton>
+
+                {sent && (
+                  <p className="flex items-center gap-2 text-xs font-medium text-emerald-700">
+                    <Check size={14} />
+                    Jendela WhatsApp telah dibuka di tab baru.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 lg:col-span-2">
+            <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-6">
+              <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                Informasi Kelompok
+              </h3>
+              <ul className="mt-4 space-y-4 text-sm text-stone-600">
+                <li className="flex items-start gap-3">
+                  <GraduationCap size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+                  <span>
+                    {GROUP_PROFILE.school}
+                    <br />
+                    Kelas {GROUP_PROFILE.className} &middot; T.A. {GROUP_PROFILE.schoolYear}
+                  </span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Mail size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+                  <span>{GROUP_PROFILE.email}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <Phone size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+                  <span>+{GROUP_PROFILE.waNumber}</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <MapPin size={16} className="mt-0.5 shrink-0 text-emerald-600" />
+                  <span>{GROUP_PROFILE.address}</span>
+                </li>
+              </ul>
+            </div>
+            <div className="rounded-3xl border border-stone-200 bg-white p-6">
+              <p className="text-xs leading-relaxed text-stone-500">
+                Catatan: website ini merupakan ruang pameran (showcase) karya,
+                bukan toko daring. Informasi harga dan mekanisme kerjasama akan
+                dibahas langsung melalui percakapan WhatsApp.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* =========================================================================
+   14. ADMIN LOGIN MODAL
+   ========================================================================= */
+function AdminLoginModal({ onClose, onSuccess }) {
+  const { login } = useAdmin();
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const ok = login(password);
+    if (ok) {
+      setError("");
+      onSuccess();
+    } else {
+      setError("Kata sandi salah. Silakan coba lagi.");
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-emerald-950/60 p-5 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-sm rounded-3xl bg-white p-7"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-700 text-white">
+            <Lock size={18} />
+          </span>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-stone-400 transition hover:bg-stone-100 hover:text-stone-600"
+            aria-label="Tutup"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <h3 className="mt-4 text-xl font-bold text-emerald-950" style={{ fontFamily: "'Fraunces', serif" }}>
+          Masuk Panel Admin
+        </h3>
+        <p className="mt-1 text-sm text-stone-500">
+          Khusus pengelola showcase untuk mengelola data karya.
+        </p>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="mb-1.5 block text-sm font-semibold text-stone-700">
+              Kata Sandi
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Masukkan kata sandi admin"
+              className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              autoFocus
+            />
+            {error && <p className="mt-2 text-xs font-medium text-red-600">{error}</p>}
+          </div>
+          <PrimaryButton type="submit" className="w-full">
+            <Shield size={16} />
+            Masuk
+          </PrimaryButton>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function getUploadErrorMessage(error) {
+  const message = error?.message || "";
+  const status = error?.status || error?.statusCode || "";
+
+  if (message.includes("Bucket not found") || status === 400 || status === 404) {
+    return "Bucket 'product-images' belum dibuat atau belum bisa diakses. Buka Supabase Storage, buat bucket bernama 'product-images', lalu jadikan public.";
+  }
+
+  if (message.includes("policy") || message.includes("unauthorized") || message.includes("Forbidden")) {
+    return "Kebijakan Storage belum mengizinkan upload dari anon key. Periksa izin bucket di Supabase Storage > Policies.";
+  }
+
+  if (message.includes("JWT") || message.includes("token")) {
+    return "Kunci anon Supabase tidak valid. Periksa VITE_SUPABASE_ANON_KEY di file .env.";
+  }
+
+  return "Gagal mengunggah gambar ke Supabase. Periksa koneksi, bucket, dan kebijakan Storage.";
+}
+
+function ProductImageUploader({
+  previewUrl,
+  selectedFileName,
+  isUploading,
+  errorMessage,
+  onSelectFile,
+  onClear,
+}) {
+  const [dragActive, setDragActive] = useState(false);
+
+  const handleFile = (file) => {
+    if (file) onSelectFile(file);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragActive(true);
+        }}
+        onDragLeave={() => setDragActive(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragActive(false);
+          const file = e.dataTransfer.files?.[0];
+          handleFile(file);
+        }}
+        className={`rounded-2xl border-2 border-dashed p-4 transition ${
+          dragActive
+            ? "border-emerald-500 bg-emerald-50"
+            : "border-stone-300 bg-stone-50"
+        }`}
+      >
+        <input
+          id="product-image-input"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => handleFile(e.target.files?.[0])}
+        />
+        <label
+          htmlFor="product-image-input"
+          className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border border-transparent px-4 py-6 text-center"
+        >
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-700">
+            <UploadCloud size={20} />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-stone-800">
+              {isUploading ? "Mengunggah gambar..." : "Pilih gambar dari device"}
+            </p>
+            <p className="mt-1 text-xs text-stone-500">
+              JPG, PNG, WEBP, atau GIF. Maksimal 2MB.
+            </p>
+          </div>
+          <span className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-emerald-700 shadow-sm">
+            {isUploading ? "Sedang diproses" : "Pilih Gambar"}
+          </span>
+        </label>
+      </div>
+
+      {errorMessage && (
+        <p className="text-xs font-medium text-red-600">{errorMessage}</p>
+      )}
+
+      {previewUrl && (
+        <div className="rounded-2xl border border-stone-200 bg-white p-3 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <img
+                src={previewUrl}
+                alt="Preview gambar produk"
+                className="h-16 w-16 rounded-xl object-cover"
+              />
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-stone-800">Preview gambar</p>
+                <p className="truncate text-xs text-stone-500">
+                  {selectedFileName || "Gambar siap diunggah"}
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onClear}
+              className="rounded-full border border-stone-200 p-2 text-stone-500 transition hover:border-red-300 hover:text-red-600"
+              aria-label="Hapus preview gambar"
+            >
+              <X size={15} />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
+   15. ADMIN PANEL (CRUD KARYA)
+   ========================================================================= */
+const emptyForm = {
+  id: "",
+  name: "",
+  creator: "",
+  category: CATEGORIES[1],
+  image: "",
+  personalWebsite: "",
+  description: "",
+  specs: "",
+  process: "",
+};
+
+function AdminPanel({ products, setProducts, onClose }) {
+  const { logout } = useAdmin();
+  const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState(null);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [selectedFileName, setSelectedFileName] = useState("");
+  const [imageUploadError, setImageUploadError] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const resetForm = () => {
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setForm(emptyForm);
+    setEditingId(null);
+    setImageFile(null);
+    setPreviewUrl("");
+    setSelectedFileName("");
+    setImageUploadError("");
+    setIsUploadingImage(false);
+  };
+
+  const handleChange = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const handleSelectFile = (file) => {
+    if (!file) return;
+
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setImageUploadError("Format file tidak didukung. Gunakan JPG, PNG, WEBP, atau GIF.");
+      return;
+    }
+
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+      setImageUploadError("Ukuran file melebihi batas 2MB. Pilih gambar yang lebih kecil.");
+      return;
+    }
+
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setImageUploadError("");
+    setImageFile(file);
+    setSelectedFileName(file.name);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleClearPreview = () => {
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setImageFile(null);
+    setPreviewUrl("");
+    setSelectedFileName("");
+    setImageUploadError("");
+    setForm((prev) => ({ ...prev, image: "" }));
+  };
+
+  const handleEdit = (product) => {
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setForm(product);
+    setEditingId(product.id);
+    setStatusMessage("");
+    setImageFile(null);
+    setSelectedFileName("");
+    setImageUploadError("");
+    setPreviewUrl(product.image || "");
+  };
+
+  const handleDelete = async (id) => {
+    if (supabase) {
+      const { error } = await supabase.from(PRODUCTS_TABLE).delete().eq("id", id);
+      if (error) {
+        setStatusMessage("Gagal menghapus di Supabase, menghapus dari data lokal.");
+      }
+    }
+    setProducts((prev) => prev.filter((p) => p.id !== id));
+    setStatusMessage("Karya berhasil dihapus.");
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!form.name || !form.creator) {
+      setStatusMessage("Nama produk dan pembuat wajib diisi.");
+      return;
+    }
+
+    let finalImageUrl = form.image || "";
+
+    if (imageFile) {
+      if (!supabase) {
+        setStatusMessage("Supabase belum aktif. Unggah gambar dibatalkan.");
+        return;
+      }
+
+      setIsUploadingImage(true);
+      setStatusMessage("Mengunggah gambar ke Supabase...");
+
+      try {
+        const safeName = `${Date.now()}-${imageFile.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "")}`;
+        const filePath = `products/${safeName}`;
+        const { error: uploadError } = await supabase.storage.from("product-images").upload(filePath, imageFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicData } = supabase.storage.from("product-images").getPublicUrl(filePath);
+        finalImageUrl = publicData.publicUrl;
+        setForm((prev) => ({ ...prev, image: finalImageUrl }));
+      } catch (err) {
+        console.error("Gagal mengunggah gambar", err);
+        const friendlyMessage = getUploadErrorMessage(err);
+        setImageUploadError(friendlyMessage);
+        setStatusMessage(friendlyMessage);
+        setIsUploadingImage(false);
+        return;
+      } finally {
+        setIsUploadingImage(false);
+      }
+    }
+
+    if (!finalImageUrl) {
+      setStatusMessage("Gambar wajib diisi. Silakan pilih file gambar atau isi URL gambar lama.");
+      return;
+    }
+
+    const payload = {
+      ...form,
+      image: finalImageUrl,
+      image_url: finalImageUrl,
+      id: editingId || "prod-" + Date.now(),
+    };
+
+    if (supabase) {
+      if (editingId) {
+        const { error } = await supabase.from(PRODUCTS_TABLE).update(payload).eq("id", editingId);
+        if (error) {
+          setStatusMessage("Supabase gagal update, tersimpan lokal saja.");
+        }
+      } else {
+        const { error } = await supabase.from(PRODUCTS_TABLE).insert(payload);
+        if (error) {
+          setStatusMessage("Supabase gagal menyimpan, tersimpan lokal saja.");
+        }
+      }
+    }
+
+    setProducts((prev) => {
+      if (editingId) {
+        return prev.map((p) => (p.id === editingId ? payload : p));
+      }
+      return [payload, ...prev];
+    });
+
+    setStatusMessage(editingId ? "Karya berhasil diperbarui." : "Karya baru berhasil ditambahkan.");
+    resetForm();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-stretch justify-end bg-emerald-950/60 backdrop-blur-sm">
+      <div className="flex h-full w-full max-w-4xl flex-col overflow-hidden bg-[#FBFAF6] shadow-2xl">
+        <div className="flex items-center justify-between border-b border-stone-200 bg-white px-6 py-5">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-white">
+              <Shield size={18} />
+            </span>
+            <div>
+              <h2 className="text-lg font-bold text-emerald-950">Dashboard Admin Showcase</h2>
+              <p className="text-xs text-stone-500">
+                {supabase ? "Terhubung ke Supabase" : "Mode lokal (Supabase belum terhubung)"}
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={logout}
+              className="inline-flex items-center gap-1.5 rounded-full border border-stone-300 px-3 py-2 text-xs font-semibold text-stone-600 transition hover:bg-stone-100"
+            >
+              <LogOut size={14} />
+              Keluar
+            </button>
+            <button
+              onClick={onClose}
+              className="rounded-full p-2 text-stone-400 transition hover:bg-stone-100 hover:text-stone-600"
+              aria-label="Tutup panel admin"
+            >
+              <X size={20} />
+            </button>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-6">
+          {statusMessage && (
+            <div className="mb-5 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              {statusMessage}
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            className="rounded-2xl border border-stone-200 bg-white p-6"
+          >
+            <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-emerald-700">
+              {editingId ? <Edit size={15} /> : <PlusCircle size={15} />}
+              {editingId ? "Edit Karya" : "Tambah Karya Baru"}
+            </h3>
+
+            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Nama Produk
+                </label>
+                <input
+                  value={form.name}
+                  onChange={handleChange("name")}
+                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Pembuat / Kreator
+                </label>
+                <input
+                  value={form.creator}
+                  onChange={handleChange("creator")}
+                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Kategori
+                </label>
+                <select
+                  value={form.category}
+                  onChange={handleChange("category")}
+                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                >
+                  {CATEGORIES.filter((c) => c !== "Semua").map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Gambar Produk
+                </label>
+                <ProductImageUploader
+                  previewUrl={previewUrl}
+                  selectedFileName={selectedFileName}
+                  isUploading={isUploadingImage}
+                  errorMessage={imageUploadError}
+                  onSelectFile={handleSelectFile}
+                  onClear={handleClearPreview}
+                />
+                <p className="mt-2 text-xs text-stone-500">
+                  Anda juga bisa mengisi URL gambar lama jika ingin mempertahankan data yang sudah ada.
+                </p>
+                <input
+                  value={form.image}
+                  onChange={handleChange("image")}
+                  placeholder="https://..."
+                  className="mt-3 w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  URL Website Personal Anggota
+                </label>
+                <input
+                  value={form.personalWebsite}
+                  onChange={handleChange("personalWebsite")}
+                  placeholder="https://..."
+                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Deskripsi
+                </label>
+                <textarea
+                  value={form.description}
+                  onChange={handleChange("description")}
+                  rows={3}
+                  className="w-full resize-none rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Komposisi / Spesifikasi Bahan
+                </label>
+                <textarea
+                  value={form.specs}
+                  onChange={handleChange("specs")}
+                  rows={3}
+                  className="w-full resize-none rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Proses Pembuatan / Keunggulan
+                </label>
+                <textarea
+                  value={form.process}
+                  onChange={handleChange("process")}
+                  rows={3}
+                  className="w-full resize-none rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <PrimaryButton type="submit">
+                <Save size={16} />
+                {editingId ? "Simpan Perubahan" : "Tambahkan Karya"}
+              </PrimaryButton>
+              {editingId && (
+                <SecondaryButton type="button" onClick={resetForm}>
+                  Batalkan Edit
+                </SecondaryButton>
+              )}
+            </div>
+          </form>
+
+          <div className="mt-8">
+            <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-emerald-700">
+              Daftar Karya Tersimpan ({products.length})
+            </h3>
+            <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
+              <div className="max-h-[420px] overflow-y-auto">
+                <table className="w-full text-left text-sm">
+                  <thead className="sticky top-0 bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
+                    <tr>
+                      <th className="px-4 py-3">Karya</th>
+                      <th className="px-4 py-3 hidden sm:table-cell">Kategori</th>
+                      <th className="px-4 py-3 hidden md:table-cell">Pembuat</th>
+                      <th className="px-4 py-3 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((product) => (
+                      <tr key={product.id} className="border-t border-stone-100">
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="h-10 w-10 rounded-lg object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                              }}
+                            />
+                            <span className="font-medium text-stone-800">{product.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 hidden sm:table-cell text-stone-500">
+                          {product.category}
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell text-stone-500">
+                          {product.creator}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex justify-end gap-2">
+                            <button
+                              onClick={() => handleEdit(product)}
+                              className="rounded-full border border-stone-200 p-2 text-stone-500 transition hover:border-emerald-300 hover:text-emerald-700"
+                              aria-label={"Edit " + product.name}
+                            >
+                              <Edit size={14} />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(product.id)}
+                              className="rounded-full border border-stone-200 p-2 text-stone-500 transition hover:border-red-300 hover:text-red-600"
+                              aria-label={"Hapus " + product.name}
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {products.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="px-4 py-8 text-center text-stone-400">
+                          Belum ada data karya.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================================
+   16. FOOTER
+   ========================================================================= */
+function Footer() {
+  return (
+    <footer className="border-t border-stone-200 bg-white py-10">
+      <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-5 text-center sm:px-8">
+        <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-700 text-white">
+          <Sparkles size={18} />
+        </span>
+        <p className="text-sm font-semibold text-emerald-950">{GROUP_PROFILE.fullName}</p>
+        <p className="max-w-md text-xs leading-relaxed text-stone-500">
+          Showcase karya siswa {GROUP_PROFILE.subject}, {GROUP_PROFILE.school}, kelas{" "}
+          {GROUP_PROFILE.className}, tahun ajaran {GROUP_PROFILE.schoolYear}.
+        </p>
+        <p className="text-xs text-stone-400">
+          &copy; {new Date().getFullYear()} {GROUP_PROFILE.fullName}. Dibuat untuk keperluan
+          pembelajaran, bukan transaksi jual beli daring.
+        </p>
+      </div>
+    </footer>
+  );
+}
+
+/* =========================================================================
+   17. APP CONTENT (LOGIKA UTAMA)
+   ========================================================================= */
+function AppContent() {
+  const [products, setProducts] = useState(initialProducts);
+  const [activeSection, setActiveSection] = useState("beranda");
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const { isAdmin } = useAdmin();
+
+  useEffect(() => {
+    let isMounted = true;
+    async function loadFromSupabase() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase
+          .from(PRODUCTS_TABLE)
+          .select("*")
+          .order("created_at", { ascending: false });
+        if (!error && data && data.length > 0 && isMounted) {
+          const mappedProducts = data.map((item) => ({
+            ...item,
+            image: item.image_url || item.image || "",
+          }));
+          setProducts(mappedProducts);
+        }
+      } catch (err) {
+        console.warn("Gagal memuat data dari Supabase, memakai mock data.", err);
+      }
+    }
+    loadFromSupabase();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const handleNavigate = (sectionId) => {
+    setActiveSection(sectionId);
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FBFAF6] font-sans text-stone-800 antialiased">
+      <Header
+        activeSection={activeSection}
+        onNavigate={handleNavigate}
+        onOpenAdminLogin={() => setShowAdminLogin(true)}
+      />
+
+      <main>
+        <Hero onNavigate={handleNavigate} />
+        <CatalogSection products={products} onOpenDetail={setSelectedProduct} />
+        <MembersSection />
+        <ContactSection />
+      </main>
+
+      <Footer />
+
+      {isAdmin && !showAdminPanel && (
+        <button
+          onClick={() => setShowAdminPanel(true)}
+          className="fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-800"
+        >
+          <Shield size={16} />
+          Kelola Karya
+        </button>
+      )}
+
+      {selectedProduct && (
+        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      )}
+
+      {showAdminLogin && !isAdmin && (
+        <AdminLoginModal
+          onClose={() => setShowAdminLogin(false)}
+          onSuccess={() => {
+            setShowAdminLogin(false);
+            setShowAdminPanel(true);
+          }}
+        />
+      )}
+
+      {showAdminPanel && isAdmin && (
+        <AdminPanel
+          products={products}
+          setProducts={setProducts}
+          onClose={() => setShowAdminPanel(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+/* =========================================================================
+   18. ROOT EXPORT
+   ========================================================================= */
+export default function App() {
+  return (
+    <AdminProvider>
+      <AppContent />
+    </AdminProvider>
+  );
+}
