@@ -54,15 +54,14 @@ const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif
    2. PROFIL KELOMPOK / IDENTITAS SEKOLAH
    ========================================================================= */
 const GROUP_PROFILE = {
-  name: "Kriya Nusantara",
-  fullName: "Kriya Nusantara PKWU",
+  name: "Hihiw",
+  fullName: "Hihiw PKWU",
   tagline: "Merajut Kreativitas, Menenun Kewirausahaan",
-  school: "SMK Negeri 1 Nusantara Jaya",
-  className: "XI Tata Niaga 2",
-  schoolYear: "2025/2026",
+  school: "SMA Negeri 12 Jakarta",
+  className: "XII-6 CLASSIX",
+  schoolYear: "2026/2027",
   subject: "Prakarya dan Kewirausahaan (PKWU)",
-  waNumber: "628123456789",
-  email: "kriyanusantara.pkwu@gmail.com",
+  waNumber: "6286 email: "haiklgeming@gmail.com",
   address: "Jl. Pendidikan No. 17, Kec. Sukamaju, Kota Nusantara",
 };
 
