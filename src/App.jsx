@@ -81,7 +81,7 @@ const GROUP_PROFILE = {
   subject: "Prakarya dan Kewirausahaan (PKWU)",
   waNumber: "6285880143957",
   email: "haiklgeming@gmail.com",
-  address: "Jl. Pendidikan No. 17, Kec. Sukamaju, Kota Nusantara",
+  address: "Jl. Kp Jati Selatan ",
 };
 
 const BADGES = [
@@ -194,44 +194,44 @@ const members = [
   {
     id: "mem-01",
     name: "Haikal",
-    role: "Ketua Kelompok & Desainer Anyaman",
+    role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
     personalWebsite: "https://kall-portfolioi.vercel.app/",
   },
   {
     id: "mem-02",
     name: "Wapa",
-    role: "Produksi & Quality Control",
+    role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://bimasaputra.carrd.co",
+    personalWebsite: "https://kall-portfolioi.vercel.app/",
   },
   {
     id: "mem-03",
     name: "Diah",
-    role: "Desainer Produk Keramik",
+    role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://citradewi.notion.site",
+    personalWebsite: "https://kall-portfolioi.vercel.app",
   },
   {
     id: "mem-04",
     name: "Rian",
-    role: "Bendahara & Riset Bahan Baku",
+    role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://dimasprasetyo.pages.dev",
+    personalWebsite: "https://kall-portfolioi.vercel.app",
   },
   {
     id: "mem-05",
     name: "Nabila",
-    role: "Marketing & Dokumentasi",
+    role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://erlanggaputra.vercel.app",
+    personalWebsite: "https://kall-portfolioi.vercel.app",
   },
   {
     id: "mem-06",
     name: "Arsat",
-    role: "Developer Web Personal & Desain Grafis",
+    role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://finaamelia.github.io",
+    personalWebsite: "https://kall-portfolioi.vercel.app",
   },
 ];
 
@@ -453,7 +453,7 @@ function Header({ activeSection, onNavigate, onOpenAdminLogin }) {
    ========================================================================= */
 const BADGE_ICONS = { Sparkles, Check, GraduationCap };
 
-function Hero({ onNavigate }) {
+function Hero({ onNavigate, productCount }) {
   return (
     <section
       id="beranda"
@@ -517,7 +517,7 @@ function Hero({ onNavigate }) {
           </div>
           <div className="absolute -bottom-6 -left-6 hidden rounded-2xl border border-emerald-100 bg-white px-5 py-4 shadow-lg sm:block">
             <p className="text-2xl font-bold text-emerald-800" style={{ fontFamily: "'Fraunces', serif" }}>
-              {initialProducts.length}+
+              {productCount}+
             </p>
             <p className="text-xs font-medium text-stone-500">Produk dipamerkan</p>
           </div>
@@ -1648,7 +1648,7 @@ function AppContent() {
       />
 
       <main>
-        <Hero onNavigate={handleNavigate} />
+        <Hero onNavigate={handleNavigate} productCount={products.length} />
         <CatalogSection products={products} onOpenDetail={setSelectedProduct} />
         <MembersSection />
         <ContactSection />
