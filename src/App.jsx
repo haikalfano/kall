@@ -49,48 +49,65 @@ try {
 const PRODUCTS_TABLE = "showcase_products";
 const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const LOCAL_STORAGE_KEY = "kriya-nusantara-pkwu-products";
+
+function loadLocalProducts() {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveLocalProducts(products) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(products));
+  } catch {}
+}
 
 /* =========================================================================
    2. PROFIL KELOMPOK / IDENTITAS SEKOLAH
    ========================================================================= */
 const GROUP_PROFILE = {
-  name: "Kriya Nusantara",
-  fullName: "Kriya Nusantara PKWU",
+  name: "Hihiw Nusantara",
+  fullName: "Hihiw PKWU",
   tagline: "Merajut Kreativitas, Menenun Kewirausahaan",
-  school: "SMK Negeri 1 Nusantara Jaya",
-  className: "XI Tata Niaga 2",
-  schoolYear: "2025/2026",
+  school: "SMA Negeri 12 Jakarta",
+  className: "XII CLASSIX",
+  schoolYear: "2026/2027",
   subject: "Prakarya dan Kewirausahaan (PKWU)",
-  waNumber: "628123456789",
-  email: "kriyanusantara.pkwu@gmail.com",
+  waNumber: "6285880143957",
+  email: "haiklgeming@gmail.com",
   address: "Jl. Pendidikan No. 17, Kec. Sukamaju, Kota Nusantara",
 };
 
 const BADGES = [
   { icon: "Sparkles", label: "Original Design" },
   { icon: "Check", label: "Handmade & Eco-Friendly" },
-  { icon: "GraduationCap", label: "Inovasi Siswa PKWU" },
+  { icon: "GraduationCap", label: "Inovasi Siswa SMA Negeri 12 Jakarta" },
 ];
 
-const ADMIN_PASSWORD = "pkwu2026";
+const ADMIN_PASSWORD = "Haikal122";
 
 /* =========================================================================
    3. DATA KATEGORI & MOCK DATA PRODUK
    ========================================================================= */
 const CATEGORIES = [
   "Semua",
-  "Kerajinan Anyaman",
-  "Aksesoris & Fashion",
-  "Dekorasi Rumah",
-  "Alat Tulis Daur Ulang",
+  "Tanaman Herbal",
+  "Soon",
+  "Soon",
+  "Soon",
 ];
 
 const initialProducts = [
   {
     id: "prod-001",
     name: "Tas Anyam Pandan \"Selaras\"",
-    creator: "Ayu Lestari",
-    category: "Kerajinan Anyaman",
+    category: "Tanaman Herbal",
     image:
       "https://images.unsplash.com/photo-1591561954557-26941169b49e?w=900&q=80",
     description:
@@ -99,12 +116,11 @@ const initialProducts = [
       "Daun pandan kering pilihan, benang katun untuk penguat jahitan, kain lapis bagian dalam dari katun blacu, resleting anti karat.",
     process:
       "Proses dimulai dari pengeringan daun pandan selama 3 hari, dianyam dengan pola \"kepang tiga\" khas daerah, lalu dijahit dan dilapisi kain bagian dalam. Setiap tas membutuhkan waktu pengerjaan sekitar 2 hari.",
-    personalWebsite: "https://ayulestari.my.id",
+  
   },
   {
     id: "prod-002",
     name: "Gelang Makrame \"Untaian\"",
-    creator: "Bima Saputra",
     category: "Aksesoris & Fashion",
     image:
       "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=900&q=80",
@@ -114,12 +130,10 @@ const initialProducts = [
       "Tali katun waxed 2mm, manik kayu jati belanda, pengunci kuningan anti karat.",
     process:
       "Menggunakan teknik simpul square knot dan spiral knot yang dirangkai berlapis. Setiap gelang diperiksa kekuatan simpulnya sebelum tahap finishing dan pengemasan.",
-    personalWebsite: "https://bimasaputra.carrd.co",
   },
   {
     id: "prod-003",
     name: "Vas Bunga Keramik \"Lempung\"",
-    creator: "Citra Dewi",
     category: "Dekorasi Rumah",
     image:
       "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=900&q=80",
@@ -129,12 +143,10 @@ const initialProducts = [
       "Tanah liat lokal kualitas tinggi, glasir food-safe non-toxic, dibakar pada suhu 1000°C.",
     process:
       "Dibentuk manual tanpa cetakan menggunakan teknik pilin, dikeringkan selama 5 hari, kemudian dibakar dua kali (biscuit firing dan glaze firing) agar hasil akhir kuat dan tahan lama.",
-    personalWebsite: "https://citradewi.notion.site",
   },
   {
     id: "prod-004",
     name: "Buku Catatan \"Kertas Kembali\"",
-    creator: "Dimas Prasetyo",
     category: "Alat Tulis Daur Ulang",
     image:
       "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=900&q=80",
@@ -144,12 +156,11 @@ const initialProducts = [
       "Kertas daur ulang 100 gsm, sampul karton tebal berlapis kain linen, benang katun untuk penjilidan.",
     process:
       "Limbah kertas dipilah, dihancurkan, dan dicetak ulang menjadi lembaran baru secara manual. Proses penjilidan dilakukan dengan tangan untuk menjaga kekuatan dan tampilan estetik buku.",
-    personalWebsite: "https://dimasprasetyo.pages.dev",
+    
   },
   {
     id: "prod-005",
     name: "Dompet Kulit Nabati \"Wastra\"",
-    creator: "Erlangga Putra",
     category: "Aksesoris & Fashion",
     image:
       "https://images.unsplash.com/photo-1627123424574-724758594e93?w=900&q=80",
@@ -159,12 +170,11 @@ const initialProducts = [
       "Kulit nabati berbasis serat nanas, benang nilon jahit ganda, pelapis anti air pada bagian dalam.",
     process:
       "Pola dipotong menggunakan cetakan manual, motif emboss dicetak dengan alat press panas, lalu dijahit ganda pada tiap sisi untuk memastikan ketahanan jangka panjang.",
-    personalWebsite: "https://erlanggaputra.vercel.app",
+    
   },
   {
     id: "prod-006",
     name: "Lampu Hias \"Cahaya Bambu\"",
-    creator: "Fina Amelia",
     category: "Dekorasi Rumah",
     image:
       "https://images.unsplash.com/photo-1543198126-b1cc0e2c4b06?w=900&q=80",
@@ -174,8 +184,7 @@ const initialProducts = [
       "Bilah bambu tipis anti rayap, dudukan kayu mahoni, kabel dan fitting lampu ber-SNI.",
     process:
       "Bambu dibelah tipis lalu dianyam mengelilingi rangka bulat, dijemur untuk mengurangi kelembapan, dan dirangkai dengan dudukan kayu serta instalasi kabel yang telah diuji keamanannya.",
-    personalWebsite: "https://finaamelia.github.io",
-  },
+     },
 ];
 
 /* =========================================================================
@@ -184,57 +193,51 @@ const initialProducts = [
 const members = [
   {
     id: "mem-01",
-    name: "Ayu Lestari",
+    name: "Haikal",
     role: "Ketua Kelompok & Desainer Anyaman",
-    product: "Tas Anyam Pandan \"Selaras\"",
-    photo: "https://images.unsplash.com/photo-1607346256330-dee7af15f7c5?w=400&q=80",
-    personalWebsite: "https://ayulestari.my.id",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
+    personalWebsite: "https://kall-portfolioi.vercel.app/",
   },
   {
     id: "mem-02",
-    name: "Bima Saputra",
+    name: "Wapa",
     role: "Produksi & Quality Control",
-    product: "Gelang Makrame \"Untaian\"",
-    photo: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&q=80",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
     personalWebsite: "https://bimasaputra.carrd.co",
   },
   {
     id: "mem-03",
-    name: "Citra Dewi",
+    name: "Diah",
     role: "Desainer Produk Keramik",
-    product: "Vas Bunga Keramik \"Lempung\"",
-    photo: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&q=80",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
     personalWebsite: "https://citradewi.notion.site",
   },
   {
     id: "mem-04",
-    name: "Dimas Prasetyo",
+    name: "Rian",
     role: "Bendahara & Riset Bahan Baku",
-    product: "Buku Catatan \"Kertas Kembali\"",
-    photo: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&q=80",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
     personalWebsite: "https://dimasprasetyo.pages.dev",
   },
   {
     id: "mem-05",
-    name: "Erlangga Putra",
+    name: "Nabila",
     role: "Marketing & Dokumentasi",
-    product: "Dompet Kulit Nabati \"Wastra\"",
-    photo: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
     personalWebsite: "https://erlanggaputra.vercel.app",
   },
   {
     id: "mem-06",
-    name: "Fina Amelia",
+    name: "Arsat",
     role: "Developer Web Personal & Desain Grafis",
-    product: "Lampu Hias \"Cahaya Bambu\"",
-    photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&q=80",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
     personalWebsite: "https://finaamelia.github.io",
   },
 ];
 
 const NAV_ITEMS = [
   { id: "beranda", label: "Beranda" },
-  { id: "katalog", label: "Katalog Karya" },
+  { id: "katalog", label: "Katalog Produk" },
   { id: "anggota", label: "Anggota & Web Personal" },
   { id: "kontak", label: "Kontak" },
 ];
@@ -350,7 +353,7 @@ function Header({ activeSection, onNavigate, onOpenAdminLogin }) {
               {GROUP_PROFILE.name}
             </span>
             <span className="block text-[11px] uppercase tracking-[0.18em] text-emerald-700">
-              Showcase Karya PKWU
+              Showcase Produk PKWU
             </span>
           </span>
         </button>
@@ -471,7 +474,7 @@ function Hero({ onNavigate }) {
           </h1>
 
           <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-stone-600 lg:mx-0">
-            Selamat datang di ruang pameran karya {GROUP_PROFILE.fullName}. Setiap
+            Selamat datang di ruang pameran produk {GROUP_PROFILE.fullName}. Setiap
             produk di sini dirancang, diproduksi, dan didokumentasikan langsung
             oleh siswa {GROUP_PROFILE.className}, {GROUP_PROFILE.school}, sebagai
             hasil pembelajaran mata pelajaran {GROUP_PROFILE.subject} tahun ajaran{" "}
@@ -480,7 +483,7 @@ function Hero({ onNavigate }) {
 
           <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:justify-start">
             <PrimaryButton onClick={() => onNavigate("katalog")}>
-              Jelajahi Karya
+              Jelajahi Produk
               <ArrowRight size={16} />
             </PrimaryButton>
             <SecondaryButton onClick={() => onNavigate("anggota")}>
@@ -508,7 +511,7 @@ function Hero({ onNavigate }) {
           <div className="overflow-hidden rounded-[2rem] border-4 border-white shadow-xl shadow-emerald-900/10">
             <img
               src="https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?w=900&q=80"
-              alt={"Etalase karya kerajinan tangan " + GROUP_PROFILE.name}
+              alt={"Etalase Produk kerajinan tangan " + GROUP_PROFILE.name}
               className="h-80 w-full object-cover sm:h-96"
             />
           </div>
@@ -516,7 +519,7 @@ function Hero({ onNavigate }) {
             <p className="text-2xl font-bold text-emerald-800" style={{ fontFamily: "'Fraunces', serif" }}>
               {initialProducts.length}+
             </p>
-            <p className="text-xs font-medium text-stone-500">Karya dipamerkan</p>
+            <p className="text-xs font-medium text-stone-500">Produk dipamerkan</p>
           </div>
         </div>
       </div>
@@ -553,10 +556,7 @@ function ProductCard({ product, onOpenDetail }) {
           >
             {product.name}
           </h3>
-          <p className="mt-1 flex items-center gap-1.5 text-sm text-stone-500">
-            <User size={13} />
-            Karya {product.creator}
-          </p>
+
         </div>
 
         <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-stone-600">
@@ -570,15 +570,7 @@ function ProductCard({ product, onOpenDetail }) {
           >
             Lihat Detail
           </button>
-          <a
-            href={product.personalWebsite}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-stone-300 px-4 py-2.5 text-sm font-semibold text-stone-700 transition hover:bg-stone-50"
-          >
-            Web Anggota
-            <ExternalLink size={14} />
-          </a>
+          
         </div>
       </div>
     </div>
@@ -603,7 +595,7 @@ function ProductModal({ product, onClose }) {
         <button
           onClick={onClose}
           className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-stone-700 shadow-md transition hover:bg-white"
-          aria-label="Tutup detail karya"
+          aria-label="Tutup detail Produk"
         >
           <X size={18} />
         </button>
@@ -624,15 +616,11 @@ function ProductModal({ product, onClose }) {
               >
                 {product.name}
               </h2>
-              <p className="mt-1 flex items-center gap-1.5 text-sm text-stone-500">
-                <User size={14} />
-                Dibuat oleh {product.creator}
-              </p>
             </div>
 
             <div>
               <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                Deskripsi Karya
+                Deskripsi Produk
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-stone-600">
                 {product.description}
@@ -657,36 +645,11 @@ function ProductModal({ product, onClose }) {
                 </p>
               </div>
             </div>
-
-            <div className="rounded-2xl border border-emerald-100 bg-emerald-50/60 p-5">
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                Informasi Kreator
-              </h3>
-              <div className="mt-3 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-                <div className="flex items-center gap-3">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-700 text-white">
-                    <User size={18} />
-                  </span>
-                  <div>
-                    <p className="font-semibold text-emerald-950">{product.creator}</p>
-                    <p className="text-xs text-stone-500">Anggota {GROUP_PROFILE.name}</p>
-                  </div>
                 </div>
-                <a
-                  href={product.personalWebsite}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800"
-                >
-                  <Globe size={15} />
-                  Buka Website Personal
-                </a>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
+              
   );
 }
 
@@ -704,7 +667,6 @@ function CatalogSection({ products, onOpenDetail }) {
       const matchQuery =
         q === "" ||
         p.name.toLowerCase().includes(q) ||
-        p.creator.toLowerCase().includes(q) ||
         p.description.toLowerCase().includes(q);
       return matchCategory && matchQuery;
     });
@@ -714,17 +676,17 @@ function CatalogSection({ products, onOpenDetail }) {
     <section id="katalog" className="bg-[#FBFAF6] py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <div className="mx-auto max-w-2xl text-center">
-          <SectionEyebrow>Katalog Karya</SectionEyebrow>
+          <SectionEyebrow>Katalog Produk</SectionEyebrow>
           <h2
             className="mt-4 text-3xl font-bold text-emerald-950 sm:text-4xl"
             style={{ fontFamily: "'Fraunces', serif" }}
           >
-            Etalase Hasil Karya Kelompok
+            Etalase Hasil Produk Kelompok
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
             Telusuri seluruh produk yang telah dirancang dan diproduksi oleh
             anggota kelompok. Gunakan filter kategori atau kolom pencarian untuk
-            menemukan karya tertentu.
+            menemukan produk tertentu.
           </p>
         </div>
 
@@ -755,7 +717,7 @@ function CatalogSection({ products, onOpenDetail }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               type="text"
-              placeholder="Cari nama, pembuat, atau deskripsi..."
+              placeholder="Cari nama, atau deskripsi..."
               className="w-full rounded-full border border-stone-300 bg-white py-2.5 pl-11 pr-4 text-sm text-stone-700 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
             />
           </div>
@@ -767,7 +729,7 @@ function CatalogSection({ products, onOpenDetail }) {
               <Search size={22} />
             </span>
             <p className="text-sm font-medium text-stone-600">
-              Belum ada karya yang cocok dengan pencarianmu.
+              Belum ada produk yang cocok dengan pencarianmu.
             </p>
             <p className="text-xs text-stone-400">
               Coba kata kunci lain atau pilih kategori "Semua".
@@ -805,7 +767,7 @@ function MembersSection() {
             className="mt-4 text-3xl font-bold sm:text-4xl"
             style={{ fontFamily: "'Fraunces', serif" }}
           >
-            Wajah &amp; Web Personal di Balik Setiap Karya
+            Wajah &amp; Web Personal di Balik Setiap Produk
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-emerald-100/80 sm:text-base">
             Setiap anggota mengelola website personal masing-masing sebagai
@@ -833,9 +795,6 @@ function MembersSection() {
               </h3>
               <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-amber-300">
                 {member.role}
-              </p>
-              <p className="mt-3 text-sm text-emerald-100/80">
-                Karya: {member.product}
               </p>
               <a
                 href={member.personalWebsite}
@@ -901,7 +860,7 @@ function ContactSection() {
             className="mt-4 text-3xl font-bold text-emerald-950 sm:text-4xl"
             style={{ fontFamily: "'Fraunces', serif" }}
           >
-            Diskusi &amp; Peluang Kerjasama Karya
+            Diskusi &amp; Peluang Kerjasama Produk
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
             Tertarik berdiskusi, memberi apresiasi, atau membuka peluang
@@ -995,7 +954,7 @@ function ContactSection() {
             </div>
             <div className="rounded-3xl border border-stone-200 bg-white p-6">
               <p className="text-xs leading-relaxed text-stone-500">
-                Catatan: website ini merupakan ruang pameran (showcase) karya,
+                Catatan: website ini merupakan ruang pameran (showcase) produk,
                 bukan toko daring. Informasi harga dan mekanisme kerjasama akan
                 dibahas langsung melalui percakapan WhatsApp.
               </p>
@@ -1052,7 +1011,7 @@ function AdminLoginModal({ onClose, onSuccess }) {
           Masuk Panel Admin
         </h3>
         <p className="mt-1 text-sm text-stone-500">
-          Khusus pengelola showcase untuk mengelola data karya.
+          Khusus pengelola showcase untuk mengelola data Produk.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -1197,12 +1156,11 @@ function ProductImageUploader({
 }
 
 /* =========================================================================
-   15. ADMIN PANEL (CRUD KARYA)
+   15. ADMIN PANEL (CRUD PRODUK)
    ========================================================================= */
 const emptyForm = {
   id: "",
   name: "",
-  creator: "",
   category: CATEGORIES[1],
   image: "",
   personalWebsite: "",
@@ -1289,18 +1247,19 @@ function AdminPanel({ products, setProducts, onClose }) {
     if (supabase) {
       const { error } = await supabase.from(PRODUCTS_TABLE).delete().eq("id", id);
       if (error) {
-        setStatusMessage("Gagal menghapus di Supabase, menghapus dari data lokal.");
+        console.error("Supabase delete error:", error);
+        setStatusMessage("Gagal menghapus di Supabase, menghapus dari data lokal. " + error.message);
       }
     }
     setProducts((prev) => prev.filter((p) => p.id !== id));
-    setStatusMessage("Karya berhasil dihapus.");
+    setStatusMessage("Produk berhasil dihapus.");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.creator) {
-      setStatusMessage("Nama produk dan pembuat wajib diisi.");
+    if (!form.name) {
+      setStatusMessage("Nama produk wajib diisi.");
       return;
     }
 
@@ -1356,12 +1315,14 @@ function AdminPanel({ products, setProducts, onClose }) {
       if (editingId) {
         const { error } = await supabase.from(PRODUCTS_TABLE).update(payload).eq("id", editingId);
         if (error) {
-          setStatusMessage("Supabase gagal update, tersimpan lokal saja.");
+          console.error("Supabase update error:", error);
+          setStatusMessage("Supabase gagal update, tersimpan lokal saja. " + error.message);
         }
       } else {
         const { error } = await supabase.from(PRODUCTS_TABLE).insert(payload);
         if (error) {
-          setStatusMessage("Supabase gagal menyimpan, tersimpan lokal saja.");
+          console.error("Supabase insert error:", error);
+          setStatusMessage("Supabase gagal menyimpan, tersimpan lokal saja. " + error.message);
         }
       }
     }
@@ -1373,7 +1334,7 @@ function AdminPanel({ products, setProducts, onClose }) {
       return [payload, ...prev];
     });
 
-    setStatusMessage(editingId ? "Karya berhasil diperbarui." : "Karya baru berhasil ditambahkan.");
+    setStatusMessage(editingId ? "Produk berhasil diperbarui." : "Produk baru berhasil ditambahkan.");
     resetForm();
   };
 
@@ -1423,7 +1384,7 @@ function AdminPanel({ products, setProducts, onClose }) {
           >
             <h3 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-emerald-700">
               {editingId ? <Edit size={15} /> : <PlusCircle size={15} />}
-              {editingId ? "Edit Karya" : "Tambah Karya Baru"}
+              {editingId ? "Edit Produk" : "Tambah Produk Baru"}
             </h3>
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -1437,16 +1398,7 @@ function AdminPanel({ products, setProducts, onClose }) {
                   className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
               </div>
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
-                  Pembuat / Kreator
-                </label>
-                <input
-                  value={form.creator}
-                  onChange={handleChange("creator")}
-                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                />
-              </div>
+              
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-stone-600">
                   Kategori
@@ -1485,17 +1437,7 @@ function AdminPanel({ products, setProducts, onClose }) {
                   className="mt-3 w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
               </div>
-              <div className="sm:col-span-2">
-                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
-                  URL Website Personal Anggota
-                </label>
-                <input
-                  value={form.personalWebsite}
-                  onChange={handleChange("personalWebsite")}
-                  placeholder="https://..."
-                  className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-                />
-              </div>
+              
               <div className="sm:col-span-2">
                 <label className="mb-1.5 block text-xs font-semibold text-stone-600">
                   Deskripsi
@@ -1534,7 +1476,7 @@ function AdminPanel({ products, setProducts, onClose }) {
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <PrimaryButton type="submit">
                 <Save size={16} />
-                {editingId ? "Simpan Perubahan" : "Tambahkan Karya"}
+                {editingId ? "Simpan Perubahan" : "Tambahkan  Produk"}
               </PrimaryButton>
               {editingId && (
                 <SecondaryButton type="button" onClick={resetForm}>
@@ -1546,16 +1488,15 @@ function AdminPanel({ products, setProducts, onClose }) {
 
           <div className="mt-8">
             <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-emerald-700">
-              Daftar Karya Tersimpan ({products.length})
+              Daftar Produk Tersimpan ({products.length})
             </h3>
             <div className="overflow-hidden rounded-2xl border border-stone-200 bg-white">
               <div className="max-h-[420px] overflow-y-auto">
                 <table className="w-full text-left text-sm">
                   <thead className="sticky top-0 bg-stone-50 text-xs uppercase tracking-wide text-stone-500">
                     <tr>
-                      <th className="px-4 py-3">Karya</th>
+                      <th className="px-4 py-3">Produk</th>
                       <th className="px-4 py-3 hidden sm:table-cell">Kategori</th>
-                      <th className="px-4 py-3 hidden md:table-cell">Pembuat</th>
                       <th className="px-4 py-3 text-right">Aksi</th>
                     </tr>
                   </thead>
@@ -1577,9 +1518,6 @@ function AdminPanel({ products, setProducts, onClose }) {
                         </td>
                         <td className="px-4 py-3 hidden sm:table-cell text-stone-500">
                           {product.category}
-                        </td>
-                        <td className="px-4 py-3 hidden md:table-cell text-stone-500">
-                          {product.creator}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex justify-end gap-2">
@@ -1603,8 +1541,8 @@ function AdminPanel({ products, setProducts, onClose }) {
                     ))}
                     {products.length === 0 && (
                       <tr>
-                        <td colSpan={4} className="px-4 py-8 text-center text-stone-400">
-                          Belum ada data karya.
+                        <td colSpan={3} className="px-4 py-8 text-center text-stone-400">
+                          Belum ada data produk.
                         </td>
                       </tr>
                     )}
@@ -1631,7 +1569,7 @@ function Footer() {
         </span>
         <p className="text-sm font-semibold text-emerald-950">{GROUP_PROFILE.fullName}</p>
         <p className="max-w-md text-xs leading-relaxed text-stone-500">
-          Showcase karya siswa {GROUP_PROFILE.subject}, {GROUP_PROFILE.school}, kelas{" "}
+          Showcase produk siswa {GROUP_PROFILE.subject}, {GROUP_PROFILE.school}, kelas{" "}
           {GROUP_PROFILE.className}, tahun ajaran {GROUP_PROFILE.schoolYear}.
         </p>
         <p className="text-xs text-stone-400">
@@ -1647,7 +1585,7 @@ function Footer() {
    17. APP CONTENT (LOGIKA UTAMA)
    ========================================================================= */
 function AppContent() {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState(() => loadLocalProducts() || initialProducts);
   const [activeSection, setActiveSection] = useState("beranda");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -1659,10 +1597,19 @@ function AppContent() {
     async function loadFromSupabase() {
       if (!supabase) return;
       try {
-        const { data, error } = await supabase
+        let response = await supabase
           .from(PRODUCTS_TABLE)
           .select("*")
           .order("created_at", { ascending: false });
+
+        if (response.error) {
+          const fallback = await supabase.from(PRODUCTS_TABLE).select("*");
+          if (!fallback.error && fallback.data) {
+            response = fallback;
+          }
+        }
+
+        const { data, error } = response;
         if (!error && data && data.length > 0 && isMounted) {
           const mappedProducts = data.map((item) => ({
             ...item,
@@ -1679,6 +1626,10 @@ function AppContent() {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    saveLocalProducts(products);
+  }, [products]);
 
   const handleNavigate = (sectionId) => {
     setActiveSection(sectionId);
@@ -1711,7 +1662,7 @@ function AppContent() {
           className="fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-800"
         >
           <Shield size={16} />
-          Kelola Karya
+          Kelola Produk
         </button>
       )}
 

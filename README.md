@@ -1,6 +1,6 @@
-# Kriya Nusantara PKWU — Showcase & Katalog Karya
+# Kriya Nusantara PKWU — Showcase & Katalog Produk
 
-Website showcase/portofolio karya kelompok PKWU (Prakarya dan Kewirausahaan) berbasis React + Tailwind CSS, dengan panel admin terintegrasi Supabase untuk mengelola data karya.
+Website showcase/portofolio produk kelompok PKWU (Prakarya dan Kewirausahaan) berbasis React + Tailwind CSS, dengan panel admin terintegrasi Supabase untuk mengelola data produk.
 
 ## Struktur Proyek
 
