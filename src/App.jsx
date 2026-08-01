@@ -1287,9 +1287,9 @@ function AdminPanel({ products, setProducts, onClose }) {
       return;
     }
 
+    const { image, ...formWithoutImage } = form;
     const payload = {
-      ...form,
-      image: finalImageUrl,
+      ...formWithoutImage,
       image_url: finalImageUrl,
       id: editingId || "prod-" + Date.now(),
     };

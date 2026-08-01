@@ -60,7 +60,7 @@ Buat tabel bernama `showcase_products` dengan kolom berikut:
 | name              | text        |
 | creator           | text        |
 | category          | text        |
-| image             | text        |
+| image_url         | text        |
 | personalWebsite   | text        |
 | description       | text        |
 | specs             | text        |
