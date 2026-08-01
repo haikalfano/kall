@@ -1567,7 +1567,7 @@ function Footer() {
         </p>
         <p className="text-xs text-stone-400">
           &copy; {new Date().getFullYear()} {GROUP_PROFILE.fullName}. Dibuat untuk keperluan
-          pembelajaran, bukan transaksi jual beli daring.
+          pembelajaran.
         </p>
       </div>
     </footer>
