@@ -1297,6 +1297,11 @@ function AdminPanel({ products, setProducts, onClose }) {
       process: form.process,
     };
 
+    const displayProduct = {
+      ...payload,
+      image: finalImageUrl,
+    };
+
     if (supabase) {
       if (editingId) {
         const { error } = await supabase.from(PRODUCTS_TABLE).update(payload).eq("id", editingId);
@@ -1317,9 +1322,9 @@ function AdminPanel({ products, setProducts, onClose }) {
 
     setProducts((prev) => {
       if (editingId) {
-        return prev.map((p) => (p.id === editingId ? payload : p));
+        return prev.map((p) => (p.id === editingId ? displayProduct : p));
       }
-      return [payload, ...prev];
+      return [displayProduct, ...prev];
     });
 
     setStatusMessage(editingId ? "Produk berhasil diperbarui." : "Produk baru berhasil ditambahkan.");
