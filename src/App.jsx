@@ -49,24 +49,6 @@ try {
 const PRODUCTS_TABLE = "showcase_products";
 const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
-const LOCAL_STORAGE_KEY = "kriya-nusantara-pkwu-products";
-
-function loadLocalProducts() {
-  if (typeof window === "undefined") return null;
-  try {
-    const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function saveLocalProducts(products) {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(products));
-  } catch {}
-}
 
 /* =========================================================================
    2. PROFIL KELOMPOK / IDENTITAS SEKOLAH
@@ -1585,7 +1567,7 @@ function Footer() {
    17. APP CONTENT (LOGIKA UTAMA)
    ========================================================================= */
 function AppContent() {
-  const [products, setProducts] = useState(() => loadLocalProducts() || initialProducts);
+  const [products, setProducts] = useState(initialProducts);
   const [activeSection, setActiveSection] = useState("beranda");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -1626,10 +1608,6 @@ function AppContent() {
       isMounted = false;
     };
   }, []);
-
-  useEffect(() => {
-    saveLocalProducts(products);
-  }, [products]);
 
   const handleNavigate = (sectionId) => {
     setActiveSection(sectionId);
