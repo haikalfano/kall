@@ -54,7 +54,7 @@ const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif
    2. PROFIL KELOMPOK / IDENTITAS SEKOLAH
    ========================================================================= */
 const GROUP_PROFILE = {
-  name: "Hihiw Nusantara",
+  name: "Hihiw",
   fullName: "Hihiw PKWU",
   tagline: "Merajut Kreativitas, Menenun Kewirausahaan",
   school: "SMA Negeri 12 Jakarta",
