@@ -1287,11 +1287,14 @@ function AdminPanel({ products, setProducts, onClose }) {
       return;
     }
 
-    const { image, ...formWithoutImage } = form;
     const payload = {
-      ...formWithoutImage,
-      image_url: finalImageUrl,
       id: editingId || "prod-" + Date.now(),
+      name: form.name,
+      category: form.category,
+      image_url: finalImageUrl,
+      description: form.description,
+      specs: form.specs,
+      process: form.process,
     };
 
     if (supabase) {
