@@ -1230,7 +1230,8 @@ function AdminPanel({ products, setProducts, onClose }) {
       const { error } = await supabase.from(PRODUCTS_TABLE).delete().eq("id", id);
       if (error) {
         console.error("Supabase delete error:", error);
-        setStatusMessage("Gagal menghapus di Supabase, menghapus dari data lokal. " + error.message);
+        setStatusMessage("Gagal menghapus di Supabase. " + error.message);
+        return;
       }
     }
     setProducts((prev) => prev.filter((p) => p.id !== id));
@@ -1298,13 +1299,15 @@ function AdminPanel({ products, setProducts, onClose }) {
         const { error } = await supabase.from(PRODUCTS_TABLE).update(payload).eq("id", editingId);
         if (error) {
           console.error("Supabase update error:", error);
-          setStatusMessage("Supabase gagal update, tersimpan lokal saja. " + error.message);
+          setStatusMessage("Supabase gagal update. " + error.message);
+          return;
         }
       } else {
         const { error } = await supabase.from(PRODUCTS_TABLE).insert(payload);
         if (error) {
           console.error("Supabase insert error:", error);
-          setStatusMessage("Supabase gagal menyimpan, tersimpan lokal saja. " + error.message);
+          setStatusMessage("Supabase gagal menyimpan. " + error.message);
+          return;
         }
       }
     }
@@ -1592,7 +1595,7 @@ function AppContent() {
         }
 
         const { data, error } = response;
-        if (!error && data && data.length > 0 && isMounted) {
+        if (!error && data && isMounted) {
           const mappedProducts = data.map((item) => ({
             ...item,
             image: item.image_url || item.image || "",
