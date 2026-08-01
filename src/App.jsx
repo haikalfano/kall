@@ -828,7 +828,7 @@ function ContactSection() {
   };
 
   const handleSendWa = () => {
-    const url = "https://wa.me/" + GROUP_PROFILE.waNumber + "?text=" + buildWaMessage();
+    const url = "https://wa.me/6285880143957" + GROUP_PROFILE.waNumber + "?text=" + buildWaMessage();
     window.open(url, "_blank", "noopener,noreferrer");
     setSent(true);
   };
