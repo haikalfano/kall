@@ -855,12 +855,7 @@ function ReviewsSection({ reviews, onAddReview }) {
                 </button>
               </form>
             </div>
-            <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-6 text-sm text-stone-600">
-              <p>
-                Ulasan kamu disimpan secara lokal di browser. Jika ingin, kamu bisa
-                mengunggah ulang halaman untuk melihat komentar yang tadi dibuat.
-              </p>
-            </div>
+            
           </div>
 
           <div className="space-y-6">
