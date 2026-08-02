@@ -58,14 +58,27 @@ Buat tabel bernama `showcase_products` dengan kolom berikut:
 |-------------------|-------------|
 | id                | text (PK)   |
 | name              | text        |
-| creator           | text        |
 | category          | text        |
 | image_url         | text        |
-| personalWebsite   | text        |
 | description       | text        |
 | specs             | text        |
 | process           | text        |
 | created_at        | timestamptz (default now()) |
+
+Buat tabel bernama `showcase_reviews` dengan kolom berikut:
+
+| Kolom      | Tipe                        |
+|------------|-----------------------------|
+| id         | text (PK)                   |
+| name       | text                        |
+| role       | text                        |
+| rating     | int                         |
+| comment    | text                        |
+| blocked    | boolean DEFAULT false       |
+| reply      | text                        |
+| created_at | timestamptz DEFAULT now()   |
+
+Atau gunakan skrip SQL di `supabase-schema.sql` untuk membuat kedua tabel secara otomatis.
 
 ## Login Admin
 

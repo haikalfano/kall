@@ -47,6 +47,7 @@ try {
 }
 
 const PRODUCTS_TABLE = "showcase_products";
+const REVIEWS_TABLE = "showcase_reviews";
 const MAX_IMAGE_SIZE_BYTES = 2 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
@@ -166,8 +167,10 @@ const initialProducts = [
       "Bilah bambu tipis anti rayap, dudukan kayu mahoni, kabel dan fitting lampu ber-SNI.",
     process:
       "Bambu dibelah tipis lalu dianyam mengelilingi rangka bulat, dijemur untuk mengurangi kelembapan, dan dirangkai dengan dudukan kayu serta instalasi kabel yang telah diuji keamanannya.",
-     },
+  },
 ];
+
+const REVIEWS = [];
 
 /* =========================================================================
    4. DATA ANGGOTA KELOMPOK
@@ -220,6 +223,7 @@ const members = [
 const NAV_ITEMS = [
   { id: "beranda", label: "Beranda" },
   { id: "katalog", label: "Katalog Produk" },
+  { id: "ulasan", label: "Ulasan" },
   { id: "anggota", label: "Anggota & Web Personal" },
   { id: "kontak", label: "Kontak" },
 ];
@@ -736,6 +740,171 @@ function CatalogSection({ products, onOpenDetail }) {
 /* =========================================================================
    12. MEMBERS SECTION
    ========================================================================= */
+function ReviewsSection({ reviews, onAddReview }) {
+  const [form, setForm] = useState({ name: "", role: "Pengunjung", rating: 5, comment: "" });
+  const [error, setError] = useState("");
+
+  const handleChange = (field) => (e) =>
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!form.name.trim() || !form.comment.trim()) {
+      setError("Nama dan ulasan wajib diisi.");
+      return;
+    }
+
+    const nextReview = {
+      id: `review-${Date.now()}`,
+      name: form.name.trim(),
+      role: form.role.trim() || "Pengunjung",
+      rating: Number(form.rating) || 5,
+      comment: form.comment.trim(),
+      blocked: false,
+      reply: "",
+    };
+
+    onAddReview(nextReview);
+    setForm({ name: "", role: "Pengunjung", rating: 5, comment: "" });
+    setError("");
+  };
+
+  return (
+    <section id="ulasan" className="bg-white py-16 sm:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <SectionEyebrow>Ulasan</SectionEyebrow>
+          <h2
+            className="mt-4 text-3xl font-bold text-emerald-950 sm:text-4xl"
+            style={{ fontFamily: "'Fraunces', serif" }}
+          >
+            Pendapat Tentang Showcase Kami
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
+            Ulasan nyata
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-6">
+            <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-emerald-950">Tulis Ulasan Kamu</h3>
+              <p className="mt-2 text-sm text-stone-600">
+                Berikan komentar atau kritik singkat tentang produk dan tampilan showcase.
+              </p>
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-stone-700">
+                    Nama
+                  </label>
+                  <input
+                    value={form.name}
+                    onChange={handleChange("name")}
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    placeholder="Nama kamu"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-stone-700">
+                    Peran
+                  </label>
+                  <input
+                    value={form.role}
+                    onChange={handleChange("role")}
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    placeholder="Contoh: Pengunjung Pameran"
+                  />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold text-stone-700">
+                      Rating
+                    </label>
+                    <select
+                      value={form.rating}
+                      onChange={handleChange("rating")}
+                      className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    >
+                      {[5, 4, 3, 2, 1].map((score) => (
+                        <option key={score} value={score}>
+                          {score} bintang
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div />
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-stone-700">
+                    Ulasan
+                  </label>
+                  <textarea
+                    value={form.comment}
+                    onChange={handleChange("comment")}
+                    rows={4}
+                    className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    placeholder="Tulis pendapatmu tentang produk atau pengalaman melihat showcase..."
+                  />
+                </div>
+                {error && <p className="text-sm text-red-600">{error}</p>}
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                >
+                  Kirim Ulasan
+                </button>
+              </form>
+            </div>
+            <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-6 text-sm text-stone-600">
+              <p>
+                Ulasan kamu disimpan secara lokal di browser. Jika ingin, kamu bisa
+                mengunggah ulang halaman untuk melihat komentar yang tadi dibuat.
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {reviews.filter((review) => !review.blocked).map((review) => (
+              <div
+                key={review.id}
+                className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-6 shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-950">{review.name}</p>
+                    <p className="text-xs uppercase tracking-[0.2em] text-emerald-700">
+                      {review.role}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 text-amber-500">
+                    {Array.from({ length: review.rating }).map((_, index) => (
+                      <span key={index}>★</span>
+                    ))}
+                  </div>
+                </div>
+                <p className="mt-5 text-sm leading-relaxed text-stone-600">
+                  “{review.comment}”
+                </p>
+                {review.reply && (
+                  <div className="mt-4 rounded-2xl bg-white p-4 text-sm text-stone-700 shadow-sm">
+                    <p className="text-xs uppercase tracking-[0.2em] text-emerald-700">Balasan Admin</p>
+                    <p className="mt-2 text-sm leading-relaxed text-stone-600">{review.reply}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+            {reviews.filter((review) => !review.blocked).length === 0 && (
+              <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-6 text-center text-sm text-stone-500">
+                Belum ada ulasan yang terlihat. Jadilah yang pertama memberikan komentar!
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function MembersSection() {
   return (
     <section id="anggota" className="bg-emerald-950 py-16 text-white sm:py-24">
@@ -1151,7 +1320,7 @@ const emptyForm = {
   process: "",
 };
 
-function AdminPanel({ products, setProducts, onClose }) {
+function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
   const { logout } = useAdmin();
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
@@ -1161,6 +1330,7 @@ function AdminPanel({ products, setProducts, onClose }) {
   const [selectedFileName, setSelectedFileName] = useState("");
   const [imageUploadError, setImageUploadError] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [replyTextById, setReplyTextById] = useState({});
 
   const resetForm = () => {
     if (previewUrl?.startsWith("blob:")) {
@@ -1236,6 +1406,61 @@ function AdminPanel({ products, setProducts, onClose }) {
     }
     setProducts((prev) => prev.filter((p) => p.id !== id));
     setStatusMessage("Produk berhasil dihapus.");
+  };
+
+  const handleDeleteReview = async (id) => {
+    if (supabase) {
+      const { error } = await supabase.from(REVIEWS_TABLE).delete().eq("id", id);
+      if (error) {
+        console.error("Supabase delete review error:", error);
+      }
+    }
+    setReviews((prev) => prev.filter((review) => review.id !== id));
+    setStatusMessage("Ulasan berhasil dihapus.");
+  };
+
+  const handleToggleBlockReview = async (id) => {
+    const nextReviews = reviews.map((review) =>
+      review.id === id ? { ...review, blocked: !review.blocked } : review
+    );
+    setReviews(nextReviews);
+    if (supabase) {
+      const review = nextReviews.find((item) => item.id === id);
+      const { error } = await supabase
+        .from(REVIEWS_TABLE)
+        .update({ blocked: review.blocked })
+        .eq("id", id);
+      if (error) {
+        console.error("Supabase update review block error:", error);
+      }
+    }
+    setStatusMessage("Status ulasan diperbarui.");
+  };
+
+  const handleReplyChange = (id) => (e) =>
+    setReplyTextById((prev) => ({ ...prev, [id]: e.target.value }));
+
+  const handleSubmitReply = async (id) => {
+    const reply = (replyTextById[id] || "").trim();
+    if (!reply) {
+      setStatusMessage("Balasan tidak boleh kosong.");
+      return;
+    }
+    const nextReviews = reviews.map((review) =>
+      review.id === id ? { ...review, reply, blocked: false } : review
+    );
+    setReviews(nextReviews);
+    setReplyTextById((prev) => ({ ...prev, [id]: "" }));
+    if (supabase) {
+      const { error } = await supabase
+        .from(REVIEWS_TABLE)
+        .update({ reply, blocked: false })
+        .eq("id", id);
+      if (error) {
+        console.error("Supabase update review reply error:", error);
+      }
+    }
+    setStatusMessage("Balasan berhasil disimpan.");
   };
 
   const handleSubmit = async (e) => {
@@ -1544,6 +1769,89 @@ function AdminPanel({ products, setProducts, onClose }) {
               </div>
             </div>
           </div>
+
+          <div className="mt-10">
+            <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-emerald-700">
+              Moderasi Ulasan ({reviews.length})
+            </h3>
+            <div className="space-y-4">
+              {reviews.length === 0 && (
+                <div className="rounded-2xl border border-stone-200 bg-white p-6 text-sm text-stone-500">
+                  Belum ada ulasan untuk dimoderasi.
+                </div>
+              )}
+              {reviews.map((review) => (
+                <div
+                  key={review.id}
+                  className={`rounded-2xl border p-5 shadow-sm ${
+                    review.blocked ? "border-red-300 bg-red-50" : "border-stone-200 bg-white"
+                  }`}
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-emerald-950">{review.name}</p>
+                      <p className="text-xs uppercase tracking-[0.2em] text-emerald-700">
+                        {review.role}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-amber-500">
+                        {Array.from({ length: review.rating }).map((_, index) => (
+                          <span key={index}>★</span>
+                        ))}
+                      </span>
+                      {review.blocked && (
+                        <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                          Diblokir
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-stone-600">{review.comment}</p>
+                  {review.reply && (
+                    <div className="mt-4 rounded-2xl bg-emerald-50 p-4 text-sm text-stone-700">
+                      <p className="text-xs uppercase tracking-[0.2em] text-emerald-700">
+                        Balasan Admin
+                      </p>
+                      <p className="mt-2">{review.reply}</p>
+                    </div>
+                  )}
+                  <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+                    <textarea
+                      value={replyTextById[review.id] || ""}
+                      onChange={handleReplyChange(review.id)}
+                      rows={3}
+                      placeholder="Tulis balasan admin..."
+                      className="w-full rounded-2xl border border-stone-300 px-4 py-3 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleSubmitReply(review.id)}
+                      className="inline-flex items-center justify-center rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                    >
+                      Balas
+                    </button>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteReview(review.id)}
+                      className="rounded-full border border-red-300 px-4 py-2 text-xs font-semibold text-red-700 transition hover:bg-red-50"
+                    >
+                      Hapus
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleToggleBlockReview(review.id)}
+                      className="rounded-full border border-stone-300 px-4 py-2 text-xs font-semibold text-stone-700 transition hover:bg-stone-100"
+                    >
+                      {review.blocked ? "Buka Blokir" : "Blokir"}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1579,6 +1887,22 @@ function Footer() {
    ========================================================================= */
 function AppContent() {
   const [products, setProducts] = useState(initialProducts);
+  const [reviews, setReviews] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem("kriya_reviews");
+      if (!stored) return REVIEWS;
+      const parsed = JSON.parse(stored) || [];
+      return parsed.filter(
+        (review) =>
+          review &&
+          review.id &&
+          !["review-001", "review-002", "review-003"].includes(review.id) &&
+          !["Siti", "Rizal", "Intan"].includes(review.name)
+      );
+    } catch (err) {
+      return REVIEWS;
+    }
+  });
   const [activeSection, setActiveSection] = useState("beranda");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -1614,11 +1938,65 @@ function AppContent() {
         console.warn("Gagal memuat data dari Supabase, memakai mock data.", err);
       }
     }
+
+    async function loadReviewsFromSupabase() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase
+          .from(REVIEWS_TABLE)
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (!error && data && isMounted) {
+          setReviews(
+            data.map((item) => ({
+              id: item.id,
+              name: item.name || "",
+              role: item.role || "Pengunjung",
+              rating: item.rating ?? 5,
+              comment: item.comment || "",
+              blocked: item.blocked ?? false,
+              reply: item.reply || "",
+            }))
+          );
+        }
+      } catch (err) {
+        console.warn("Gagal memuat ulasan dari Supabase", err);
+      }
+    }
+
     loadFromSupabase();
+    loadReviewsFromSupabase();
     return () => {
       isMounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("kriya_reviews", JSON.stringify(reviews));
+    } catch (err) {
+      console.warn("Gagal menyimpan ulasan di localStorage", err);
+    }
+  }, [reviews]);
+
+  const handleAddReview = async (review) => {
+    const payload = {
+      ...review,
+      blocked: false,
+      reply: review.reply || "",
+      created_at: new Date().toISOString(),
+    };
+
+    if (supabase) {
+      const { error } = await supabase.from(REVIEWS_TABLE).insert(payload);
+      if (error) {
+        console.warn("Gagal menyimpan ulasan ke Supabase:", error);
+      }
+    }
+
+    setReviews((prev) => [payload, ...prev]);
+  };
 
   const handleNavigate = (sectionId) => {
     setActiveSection(sectionId);
@@ -1639,6 +2017,7 @@ function AppContent() {
       <main>
         <Hero onNavigate={handleNavigate} productCount={products.length} />
         <CatalogSection products={products} onOpenDetail={setSelectedProduct} />
+        <ReviewsSection reviews={reviews} onAddReview={handleAddReview} />
         <MembersSection />
         <ContactSection />
       </main>
@@ -1651,7 +2030,7 @@ function AppContent() {
           className="fixed bottom-6 right-6 z-30 inline-flex items-center gap-2 rounded-full bg-emerald-700 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-900/20 transition hover:bg-emerald-800"
         >
           <Shield size={16} />
-          Kelola Produk
+          Kelola Produk & Ulasan
         </button>
       )}
 
@@ -1673,6 +2052,8 @@ function AppContent() {
         <AdminPanel
           products={products}
           setProducts={setProducts}
+          reviews={reviews}
+          setReviews={setReviews}
           onClose={() => setShowAdminPanel(false)}
         />
       )}
