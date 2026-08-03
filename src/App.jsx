@@ -187,7 +187,7 @@ const members = [
     id: "mem-02",
     name: "Wapa",
     role: "Role",
-    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785764553634-WhatsApp-Image-2026-08-03-at-15.22.37.jpeg",
     personalWebsite: "https://biodata-wafa.vercel.app/",
   },
   {
@@ -208,14 +208,14 @@ const members = [
     id: "mem-05",
     name: "Nabila",
     role: "Role",
-    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785773110061-WhatsApp-Image-2026-08-03-at-20.11.40.jpeg",
     personalWebsite: "https://biodata-nabila.vercel.app/",
   },
   {
     id: "mem-06",
     name: "Arsat",
     role: "Role",
-    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785747464015-WhatsApp-Image-2026-08-02-at-13.13.59.jpeg",
     personalWebsite: "https://biodata-siswa-rose.vercel.app/",
   },
 ];
