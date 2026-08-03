@@ -209,7 +209,7 @@ const members = [
     name: "Nabila",
     role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://kall-portfolioi.vercel.app",
+    personalWebsite: "https://biodata-nabila.vercel.app/",
   },
   {
     id: "mem-06",
