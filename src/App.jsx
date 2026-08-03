@@ -188,14 +188,14 @@ const members = [
     name: "Wapa",
     role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://kall-portfolioi.vercel.app/",
+    personalWebsite: "https://biodata-wafa.vercel.app/",
   },
   {
     id: "mem-03",
     name: "Diah",
     role: "Role",
     photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://kall-portfolioi.vercel.app",
+    personalWebsite: "https://biodata-diah.vercel.app/",
   },
   {
     id: "mem-04",
