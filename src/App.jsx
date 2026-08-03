@@ -496,7 +496,7 @@ function Hero({ onNavigate, productCount }) {
         <div className="relative w-full max-w-md flex-1">
           <div className="overflow-hidden rounded-[2rem] border-4 border-white shadow-xl shadow-emerald-900/10">
             <img
-              src="https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785498710826-wallpaperflare.com_wallpaper.jpg"
+              src="https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785775625782-WhatsApp-Image-2026-07-31-at-17.38.55.jpeg"
               alt={"Etalase Produk kerajinan tangan " + GROUP_PROFILE.name}
               className="h-80 w-full object-cover sm:h-96"
             />
