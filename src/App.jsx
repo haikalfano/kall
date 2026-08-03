@@ -526,7 +526,7 @@ function ProductCard({ product, onOpenDetail }) {
           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           onError={(e) => {
             e.currentTarget.src =
-              "https://images.unsplash.com/photo-1618221469555-7f3ad97540d6?w=900&q=80";
+              "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785775625782-WhatsApp-Image-2026-07-31-at-17.38.55.jpeg";
           }}
         />
         <div className="absolute left-3 top-3">
