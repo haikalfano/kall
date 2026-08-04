@@ -201,8 +201,8 @@ const members = [
     id: "mem-04",
     name: "Rian",
     role: "Role",
-    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
-    personalWebsite: "https://kall-portfolioi.vercel.app",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785827522984-WhatsApp-Image-2026-08-04-at-14.11.21.jpeg",
+    personalWebsite: "https://mpihlupi.carrd.co/#",
   },
   {
     id: "mem-05",
