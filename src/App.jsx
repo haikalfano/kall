@@ -194,7 +194,7 @@ const members = [
     id: "mem-03",
     name: "Diah",
     role: "Role",
-    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785495307118-wallpaperflare.com_wallpaper.jpg",
+    photo: "https://lqvjphmbebbcdquovkap.supabase.co/storage/v1/object/public/product-images/products/1785799787354-WhatsApp-Image-2026-08-04-at-06.21.12.jpeg",
     personalWebsite: "https://biodata-diah.vercel.app/",
   },
   {
