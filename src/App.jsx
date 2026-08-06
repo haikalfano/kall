@@ -1162,8 +1162,7 @@ function DocumentationSection({ documentationData }) {
                       />
                     </div>
                     <div className="px-4 py-3 text-left">
-                      <p className="text-sm font-semibold text-emerald-900">Dokumentasi {index + 1}</p>
-                      <p className="mt-1 text-xs text-stone-500">Klik untuk melihat lebih jelas</p>
+                      <p className="text-xs text-stone-500">Klik untuk melihat lebih jelas</p>
                     </div>
                   </button>
                 ))}
