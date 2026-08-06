@@ -1139,7 +1139,7 @@ function DocumentationSection({ documentationData }) {
                 <img
                   src={src}
                   alt={`Dokumentasi ${index + 1}`}
-                  className="h-64 w-full object-cover"
+                  className="w-full h-auto object-contain"
                 />
               </div>
             ))
