@@ -8,6 +8,7 @@ import {
   Shield,
   Check,
   Phone,
+  ArrowLeft,
   ArrowRight,
   X,
   Edit,
@@ -231,8 +232,8 @@ const NAV_ITEMS = [
   { id: "beranda", label: "Beranda" },
   { id: "katalog", label: "Katalog Produk" },
   { id: "ulasan", label: "Ulasan" },
-  { id: "anggota", label: "Anggota & Web Personal" },
   { id: "dokumentasi", label: "Dokumentasi" },
+  { id: "anggota", label: "Anggota & Web Personal" },
   { id: "kontak", label: "Kontak" },
 ];
 
@@ -584,108 +585,195 @@ function ProductCard({ product, onOpenDetail }) {
    10. PRODUCT DETAIL MODAL
    ========================================================================= */
 function ProductModal({ product, onClose }) {
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+
   if (!product) return null;
 
+  const documentationImages = normalizeImageList(product.documentation);
+  const infographicImages = normalizeImageList(product.infographic);
+  const allImages = [product.image, ...documentationImages, ...infographicImages].filter(Boolean);
+
+  const openGallery = (index) => {
+    setGalleryImages(allImages);
+    setGalleryIndex(index);
+    setGalleryOpen(true);
+  };
+
+  const closeGallery = () => setGalleryOpen(false);
+  const goPrev = () => setGalleryIndex((prev) => (prev <= 0 ? galleryImages.length - 1 : prev - 1));
+  const goNext = () => setGalleryIndex((prev) => (prev >= galleryImages.length - 1 ? 0 : prev + 1));
+
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-emerald-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-6"
-      onClick={onClose}
-    >
+    <>
       <div
-        className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl bg-white sm:rounded-3xl"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 z-[9990] flex items-end justify-center bg-emerald-950/60 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+        onClick={onClose}
       >
-        <button
-          onClick={onClose}
-          className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-stone-700 shadow-md transition hover:bg-white"
-          aria-label="Tutup detail Produk"
+        <div
+          className="relative flex max-h-[92vh] w-full max-w-3xl flex-col overflow-hidden rounded-t-3xl bg-white sm:rounded-3xl"
+          onClick={(e) => e.stopPropagation()}
         >
-          <X size={18} />
-        </button>
+          <button
+            onClick={onClose}
+            className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-stone-700 shadow-md transition hover:bg-white"
+            aria-label="Tutup detail Produk"
+          >
+            <X size={18} />
+          </button>
 
-        <div className="overflow-y-auto">
-          <img
-            src={product.image}
-            alt={product.name}
-            className="h-64 w-full object-cover sm:h-80"
-          />
+          <div className="overflow-y-auto">
+            <button type="button" onClick={() => openGallery(0)} className="w-full">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="h-64 w-full object-cover sm:h-80"
+              />
+            </button>
 
-          <div className="space-y-6 p-6 sm:p-8">
-            <div>
-              <CategoryBadge>{product.category}</CategoryBadge>
-              <h2
-                className="mt-3 text-2xl font-bold text-emerald-950 sm:text-3xl"
-                style={{ fontFamily: "'Fraunces', serif" }}
-              >
-                {product.name}
-              </h2>
-            </div>
+            <div className="space-y-6 p-6 sm:p-8">
+              <div>
+                <CategoryBadge>{product.category}</CategoryBadge>
+                <h2
+                  className="mt-3 text-2xl font-bold text-emerald-950 sm:text-3xl"
+                  style={{ fontFamily: "'Fraunces', serif" }}
+                >
+                  {product.name}
+                </h2>
+              </div>
 
-            <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                Deskripsi Produk
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-stone-600">
-                {product.description}
-              </p>
-            </div>
-
-            <div className="grid gap-6 sm:grid-cols-2">
               <div>
                 <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                  Komposisi &amp; Spesifikasi Bahan
+                  Deskripsi Produk
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-stone-600">
-                  {product.specs}
+                  {product.description}
                 </p>
               </div>
-              <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                  Proses Pembuatan &amp; Keunggulan
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-stone-600">
-                  {product.process}
-                </p>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                    Komposisi &amp; Spesifikasi Bahan
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                    {product.specs}
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                    Proses Pembuatan &amp; Keunggulan
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-stone-600">
+                    {product.process}
+                  </p>
+                </div>
               </div>
+              {documentationImages.length > 0 && (
+                <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-5">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                    Dokumentasi Produk
+                  </h3>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {documentationImages.map((src, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => openGallery(index + 1)}
+                        className="overflow-hidden rounded-3xl"
+                      >
+                        <img
+                          src={src}
+                          alt={`${product.name} dokumentasi ${index + 1}`}
+                          className="h-40 w-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {infographicImages.length > 0 && (
+                <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-5">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                    Infografis Singkat
+                  </h3>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {infographicImages.map((src, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => openGallery(index + 1 + documentationImages.length)}
+                        className="overflow-hidden rounded-3xl"
+                      >
+                        <img
+                          src={src}
+                          alt={`${product.name} infografis ${index + 1}`}
+                          className="h-40 w-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-            {normalizeImageList(product.documentation).length > 0 && (
-              <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-5">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                  Dokumentasi Produk
-                </h3>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {normalizeImageList(product.documentation).map((src, index) => (
-                    <img
-                      key={index}
-                      src={src}
-                      alt={`${product.name} dokumentasi ${index + 1}`}
-                      className="h-40 w-full rounded-3xl object-cover"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
-            {normalizeImageList(product.infographic).length > 0 && (
-              <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-5">
-                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-                  Infografis Singkat
-                </h3>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  {normalizeImageList(product.infographic).map((src, index) => (
-                    <img
-                      key={index}
-                      src={src}
-                      alt={`${product.name} infografis ${index + 1}`}
-                      className="h-40 w-full rounded-3xl object-cover"
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
-    </div>
+
+      {galleryOpen && galleryImages.length > 0 && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 p-4"
+          onClick={closeGallery}
+        >
+          <div className="relative max-w-5xl flex w-full flex-col items-center gap-4">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                closeGallery();
+              }}
+              className="absolute right-4 top-4 rounded-full bg-white/90 p-2 text-stone-700 shadow-md transition hover:bg-white"
+            >
+              <X size={20} />
+            </button>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goPrev();
+              }}
+              className="absolute left-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-3 text-stone-700 shadow-md transition hover:bg-white"
+            >
+              <ArrowLeft size={20} />
+            </button>
+
+            <img
+              src={galleryImages[galleryIndex]}
+              alt={`Gallery image ${galleryIndex + 1}`}
+              className="max-h-[80vh] w-full max-w-4xl rounded-3xl object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goNext();
+              }}
+              className="absolute right-4 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-3 text-stone-700 shadow-md transition hover:bg-white"
+            >
+              <ArrowRight size={20} />
+            </button>
+
+            <div className="flex items-center gap-2 text-sm text-white">
+              {galleryIndex + 1} / {galleryImages.length}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
@@ -1019,33 +1107,10 @@ function MembersSection() {
   );
 }
 
-function DocumentationSection() {
-  const docs = [
-    {
-      title: "Rencana Produk",
-      points: [
-        "Tujuan produk, target pengguna, dan pesan branding.",
-        "Pemilihan bahan, teknik, dan estetika yang sesuai.",
-        "Sketsa awal dan alur kerja produksi untuk setiap item.",
-      ],
-    },
-    {
-      title: "Proses Pembuatan",
-      points: [
-        "Dokumentasi langkah demi langkah produksi.",
-        "Penggunaan bahan lokal dan teknik PKWU.",
-        "Waktu dan tahapan uji kualitas setiap produk.",
-      ],
-    },
-    {
-      title: "Evaluasi & Pembelajaran",
-      points: [
-        "Hasil refleksi siswa setelah pameran.",
-        "Pelajaran yang didapatkan dari proses produksi.",
-        "Rencana pengembangan karya berikutnya.",
-      ],
-    },
-  ];
+function DocumentationSection({ documentationData }) {
+  const images = Array.isArray(documentationData.images)
+    ? documentationData.images.filter(Boolean)
+    : [];
 
   return (
     <section id="dokumentasi" className="bg-[#FBFAF6] py-16 sm:py-24">
@@ -1056,30 +1121,29 @@ function DocumentationSection() {
             className="mt-4 text-3xl font-bold text-emerald-950 sm:text-4xl"
             style={{ fontFamily: "'Fraunces', serif" }}
           >
-            Catatan Proses & Hasil Pembelajaran
+            Perjalanan Produk Kami (Our Product Journey)
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
-            Dokumentasi ini membantu menjelaskan bagaimana produk dibuat, timbul
-            ide, dan apa yang dipelajari sepanjang perjalanan showcase.
+            Dokumentasi ini membantu membuktikan bahwa setiap produk yang dipamerkan benar-benar dirancang, diproduksi, dan didokumentasikan oleh anggota kelompok.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {docs.map((doc) => (
-            <div key={doc.title} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-emerald-950">{doc.title}</h3>
-              <ul className="mt-5 space-y-3 text-sm leading-relaxed text-stone-600">
-                {doc.points.map((point) => (
-                  <li key={point} className="flex gap-3">
-                    <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
-                      ✓
-                    </span>
-                    <span>{point}</span>
-                  </li>
-                ))}
-              </ul>
+        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {images.length === 0 ? (
+            <div className="rounded-3xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
+              Belum ada foto dokumentasi.
             </div>
-          ))}
+          ) : (
+            images.map((src, index) => (
+              <div key={index} className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+                <img
+                  src={src}
+                  alt={`Dokumentasi ${index + 1}`}
+                  className="h-64 w-full object-cover"
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </section>
@@ -1434,7 +1498,7 @@ const emptyForm = {
   infographic: [],
 };
 
-function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
+function AdminPanel({ products, setProducts, reviews, setReviews, documentationData, setDocumentationData, onClose }) {
   const { logout } = useAdmin();
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
@@ -1449,6 +1513,7 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
   const [infographicUploads, setInfographicUploads] = useState([]);
   const [documentationUploadError, setDocumentationUploadError] = useState("");
   const [infographicUploadError, setInfographicUploadError] = useState("");
+  const [newDocumentationImageUrl, setNewDocumentationImageUrl] = useState("");
 
   const resetForm = () => {
     if (previewUrl?.startsWith("blob:")) {
@@ -1474,6 +1539,7 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
     setInfographicUploads([]);
     setDocumentationUploadError("");
     setInfographicUploadError("");
+    setNewDocumentationImageUrl("");
     setIsUploadingImage(false);
   };
 
@@ -2087,6 +2153,60 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
             </div>
           </form>
 
+          <div className="mt-8 rounded-2xl border border-stone-200 bg-white p-6">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-emerald-700">
+              Foto Dokumentasi Section
+            </h3>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {Array.isArray(documentationData.images) && documentationData.images.length === 0 ? (
+                <div className="rounded-3xl border border-dashed border-stone-300 bg-stone-50 p-6 text-center text-sm text-stone-500">
+                  Belum ada foto dokumentasi section.
+                </div>
+              ) : (
+                (documentationData.images || []).map((src, index) => (
+                  <div key={index} className="group relative overflow-hidden rounded-3xl border border-stone-200 bg-stone-100">
+                    <img src={src} alt={`Dokumentasi section ${index + 1}`} className="h-32 w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setDocumentationData((prev) => ({
+                        ...prev,
+                        images: (prev.images || []).filter((_, idx) => idx !== index),
+                      }))}
+                      className="absolute right-3 top-3 rounded-full bg-white/90 p-2 text-red-600 transition hover:bg-white"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+              <input
+                type="text"
+                value={newDocumentationImageUrl}
+                onChange={(e) => setNewDocumentationImageUrl(e.target.value)}
+                placeholder="Tambahkan URL foto dokumentasi"
+                className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const url = newDocumentationImageUrl.trim();
+                  if (!url) return;
+                  setDocumentationData((prev) => ({
+                    ...prev,
+                    images: [...(prev.images || []), url],
+                  }));
+                  setNewDocumentationImageUrl("");
+                }}
+                className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800"
+              >
+                Tambah Foto
+              </button>
+            </div>
+          </div>
+
           <div className="mt-8">
             <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-emerald-700">
               Daftar Produk Tersimpan ({products.length})
@@ -2286,6 +2406,24 @@ function AppContent() {
       return REVIEWS;
     }
   });
+
+  const defaultDocumentationData = {
+    images: [],
+  };
+
+  const [documentationData, setDocumentationData] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem("kriya_documentation");
+      if (!stored) return defaultDocumentationData;
+      const parsed = JSON.parse(stored) || {};
+      if (Array.isArray(parsed.images)) {
+        return { images: parsed.images.filter(Boolean) };
+      }
+      return defaultDocumentationData;
+    } catch (err) {
+      return defaultDocumentationData;
+    }
+  });
   const [activeSection, setActiveSection] = useState("beranda");
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showAdminLogin, setShowAdminLogin] = useState(false);
@@ -2363,6 +2501,14 @@ function AppContent() {
     }
   }, [reviews]);
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem("kriya_documentation", JSON.stringify(documentationData));
+    } catch (err) {
+      console.warn("Gagal menyimpan dokumentasi di localStorage", err);
+    }
+  }, [documentationData]);
+
   const handleAddReview = async (review) => {
     const payload = {
       ...review,
@@ -2401,8 +2547,8 @@ function AppContent() {
         <Hero onNavigate={handleNavigate} productCount={products.length} />
         <CatalogSection products={products} onOpenDetail={setSelectedProduct} />
         <ReviewsSection reviews={reviews} onAddReview={handleAddReview} />
+        <DocumentationSection documentationData={documentationData} />
         <MembersSection />
-        <DocumentationSection />
         <ContactSection />
       </main>
 
@@ -2438,6 +2584,8 @@ function AppContent() {
           setProducts={setProducts}
           reviews={reviews}
           setReviews={setReviews}
+          documentationData={documentationData}
+          setDocumentationData={setDocumentationData}
           onClose={() => setShowAdminPanel(false)}
         />
       )}
