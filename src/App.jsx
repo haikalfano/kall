@@ -1111,6 +1111,17 @@ function DocumentationSection({ documentationData }) {
   const images = Array.isArray(documentationData.images)
     ? documentationData.images.filter(Boolean)
     : [];
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
+
+  const openGallery = (index) => {
+    setGalleryIndex(index);
+    setGalleryOpen(true);
+  };
+
+  const closeGallery = () => setGalleryOpen(false);
+  const goPrev = () => setGalleryIndex((prev) => (prev <= 0 ? images.length - 1 : prev - 1));
+  const goNext = () => setGalleryIndex((prev) => (prev >= images.length - 1 ? 0 : prev + 1));
 
   return (
     <section id="dokumentasi" className="bg-[#FBFAF6] py-16 sm:py-24">
@@ -1121,31 +1132,99 @@ function DocumentationSection({ documentationData }) {
             className="mt-4 text-3xl font-bold text-emerald-950 sm:text-4xl"
             style={{ fontFamily: "'Fraunces', serif" }}
           >
-            Perjalanan Produk Kami (Our Product Journey)
+            Perjalanan Produk Kami
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
             Dokumentasi ini membantu membuktikan bahwa setiap produk yang dipamerkan benar-benar dirancang, diproduksi, dan didokumentasikan oleh anggota kelompok.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12">
           {images.length === 0 ? (
             <div className="rounded-3xl border border-stone-200 bg-white p-10 text-center text-sm text-stone-500">
               Belum ada foto dokumentasi.
             </div>
           ) : (
-            images.map((src, index) => (
-              <div key={index} className="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
-                <img
-                  src={src}
-                  alt={`Dokumentasi ${index + 1}`}
-                  className="w-full h-auto object-contain"
-                />
+            <>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {images.map((src, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    onClick={() => openGallery(index)}
+                    className="group overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+                  >
+                    <div className="relative h-48 overflow-hidden bg-stone-100">
+                      <img
+                        src={src}
+                        alt={`Dokumentasi ${index + 1}`}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                    <div className="px-4 py-3 text-left">
+                      <p className="text-sm font-semibold text-emerald-900">Dokumentasi {index + 1}</p>
+                      <p className="mt-1 text-xs text-stone-500">Klik untuk melihat lebih jelas</p>
+                    </div>
+                  </button>
+                ))}
               </div>
-            ))
+              <div className="mt-4 text-right text-xs uppercase tracking-[0.22em] text-stone-500">
+                Klik gambar untuk memperbesar dan navigasi.
+              </div>
+            </>
           )}
         </div>
       </div>
+
+      {galleryOpen && images.length > 0 && (
+        <div
+          className="fixed inset-0 z-[9990] flex items-center justify-center bg-black/80 p-4"
+          onClick={closeGallery}
+        >
+          <div className="relative w-full max-w-4xl">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                closeGallery();
+              }}
+              className="absolute right-3 top-3 z-20 rounded-full bg-white/90 p-2 text-stone-700 shadow-md transition hover:bg-white"
+            >
+              <X size={18} />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goPrev();
+              }}
+              className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/90 p-2 text-stone-700 shadow-md transition hover:bg-white"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                goNext();
+              }}
+              className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/90 p-2 text-stone-700 shadow-md transition hover:bg-white"
+            >
+              <ArrowRight size={20} />
+            </button>
+            <img
+              src={images[galleryIndex]}
+              alt={`Dokumentasi ${galleryIndex + 1}`}
+              className="mx-auto max-h-[80vh] w-full rounded-3xl object-contain"
+              onClick={(e) => e.stopPropagation()}
+            />
+            <div className="mt-4 flex items-center justify-between text-sm text-white">
+              <span>{galleryIndex + 1} / {images.length}</span>
+              <span className="text-xs text-stone-200">Tekan tombol arah atau klik di luar untuk menutup.</span>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
