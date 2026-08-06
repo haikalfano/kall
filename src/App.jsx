@@ -99,7 +99,14 @@ const initialProducts = [
       "Daun pandan kering pilihan, benang katun untuk penguat jahitan, kain lapis bagian dalam dari katun blacu, resleting anti karat.",
     process:
       "Proses dimulai dari pengeringan daun pandan selama 3 hari, dianyam dengan pola \"kepang tiga\" khas daerah, lalu dijahit dan dilapisi kain bagian dalam. Setiap tas membutuhkan waktu pengerjaan sekitar 2 hari.",
-  
+    documentation: [
+      "https://images.unsplash.com/photo-1581091870628-518ce6a5e46f?w=900&q=80",
+      "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=900&q=80",
+    ],
+    infographic: [
+      "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=900&q=80",
+      "https://images.unsplash.com/photo-1481277542470-605612bd2d61?w=900&q=80",
+    ],
   },
   {
     id: "prod-002",
@@ -225,6 +232,7 @@ const NAV_ITEMS = [
   { id: "katalog", label: "Katalog Produk" },
   { id: "ulasan", label: "Ulasan" },
   { id: "anggota", label: "Anggota & Web Personal" },
+  { id: "dokumentasi", label: "Dokumentasi" },
   { id: "kontak", label: "Kontak" },
 ];
 
@@ -269,6 +277,15 @@ function SectionEyebrow({ children }) {
       {children}
     </span>
   );
+}
+
+function normalizeImageList(value) {
+  if (!value) return [];
+  if (Array.isArray(value)) return value.filter(Boolean);
+  return String(value)
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
 }
 
 function CategoryBadge({ children }) {
@@ -631,11 +648,44 @@ function ProductModal({ product, onClose }) {
                 </p>
               </div>
             </div>
+            {normalizeImageList(product.documentation).length > 0 && (
+              <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-5">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                  Dokumentasi Produk
+                </h3>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {normalizeImageList(product.documentation).map((src, index) => (
+                    <img
+                      key={index}
+                      src={src}
+                      alt={`${product.name} dokumentasi ${index + 1}`}
+                      className="h-40 w-full rounded-3xl object-cover"
+                    />
+                  ))}
                 </div>
               </div>
-            </div>
+            )}
+            {normalizeImageList(product.infographic).length > 0 && (
+              <div className="rounded-3xl border border-stone-200 bg-[#F8FBF8] p-5">
+                <h3 className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+                  Infografis Singkat
+                </h3>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {normalizeImageList(product.infographic).map((src, index) => (
+                    <img
+                      key={index}
+                      src={src}
+                      alt={`${product.name} infografis ${index + 1}`}
+                      className="h-40 w-full rounded-3xl object-cover"
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-              
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -963,6 +1013,73 @@ function MembersSection() {
             {GROUP_PROFILE.school}, tahun ajaran{" "}
             <strong>{GROUP_PROFILE.schoolYear}</strong>.
           </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DocumentationSection() {
+  const docs = [
+    {
+      title: "Rencana Produk",
+      points: [
+        "Tujuan produk, target pengguna, dan pesan branding.",
+        "Pemilihan bahan, teknik, dan estetika yang sesuai.",
+        "Sketsa awal dan alur kerja produksi untuk setiap item.",
+      ],
+    },
+    {
+      title: "Proses Pembuatan",
+      points: [
+        "Dokumentasi langkah demi langkah produksi.",
+        "Penggunaan bahan lokal dan teknik PKWU.",
+        "Waktu dan tahapan uji kualitas setiap produk.",
+      ],
+    },
+    {
+      title: "Evaluasi & Pembelajaran",
+      points: [
+        "Hasil refleksi siswa setelah pameran.",
+        "Pelajaran yang didapatkan dari proses produksi.",
+        "Rencana pengembangan karya berikutnya.",
+      ],
+    },
+  ];
+
+  return (
+    <section id="dokumentasi" className="bg-[#FBFAF6] py-16 sm:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div className="mx-auto max-w-2xl text-center">
+          <SectionEyebrow>Dokumentasi</SectionEyebrow>
+          <h2
+            className="mt-4 text-3xl font-bold text-emerald-950 sm:text-4xl"
+            style={{ fontFamily: "'Fraunces', serif" }}
+          >
+            Catatan Proses & Hasil Pembelajaran
+          </h2>
+          <p className="mt-3 text-sm leading-relaxed text-stone-600 sm:text-base">
+            Dokumentasi ini membantu menjelaskan bagaimana produk dibuat, timbul
+            ide, dan apa yang dipelajari sepanjang perjalanan showcase.
+          </p>
+        </div>
+
+        <div className="mt-12 grid gap-6 lg:grid-cols-3">
+          {docs.map((doc) => (
+            <div key={doc.title} className="rounded-3xl border border-stone-200 bg-white p-6 shadow-sm">
+              <h3 className="text-lg font-semibold text-emerald-950">{doc.title}</h3>
+              <ul className="mt-5 space-y-3 text-sm leading-relaxed text-stone-600">
+                {doc.points.map((point) => (
+                  <li key={point} className="flex gap-3">
+                    <span className="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                      ✓
+                    </span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -1313,6 +1430,8 @@ const emptyForm = {
   description: "",
   specs: "",
   process: "",
+  documentation: [],
+  infographic: [],
 };
 
 function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
@@ -1326,17 +1445,35 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
   const [imageUploadError, setImageUploadError] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [replyTextById, setReplyTextById] = useState({});
+  const [documentationUploads, setDocumentationUploads] = useState([]);
+  const [infographicUploads, setInfographicUploads] = useState([]);
+  const [documentationUploadError, setDocumentationUploadError] = useState("");
+  const [infographicUploadError, setInfographicUploadError] = useState("");
 
   const resetForm = () => {
     if (previewUrl?.startsWith("blob:")) {
       URL.revokeObjectURL(previewUrl);
     }
+    documentationUploads.forEach((item) => {
+      if (item.previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+    });
+    infographicUploads.forEach((item) => {
+      if (item.previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+    });
     setForm(emptyForm);
     setEditingId(null);
     setImageFile(null);
     setPreviewUrl("");
     setSelectedFileName("");
     setImageUploadError("");
+    setDocumentationUploads([]);
+    setInfographicUploads([]);
+    setDocumentationUploadError("");
+    setInfographicUploadError("");
     setIsUploadingImage(false);
   };
 
@@ -1381,12 +1518,30 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
     if (previewUrl?.startsWith("blob:")) {
       URL.revokeObjectURL(previewUrl);
     }
-    setForm(product);
+    documentationUploads.forEach((item) => {
+      if (item.previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+    });
+    infographicUploads.forEach((item) => {
+      if (item.previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(item.previewUrl);
+      }
+    });
+    setForm({
+      ...product,
+      documentation: normalizeImageList(product.documentation),
+      infographic: normalizeImageList(product.infographic),
+    });
     setEditingId(product.id);
     setStatusMessage("");
     setImageFile(null);
     setSelectedFileName("");
     setImageUploadError("");
+    setDocumentationUploads([]);
+    setInfographicUploads([]);
+    setDocumentationUploadError("");
+    setInfographicUploadError("");
     setPreviewUrl(product.image || "");
   };
 
@@ -1458,6 +1613,62 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
     setStatusMessage("Balasan berhasil disimpan.");
   };
 
+  const addImageUploads = (field, files) => {
+    const fileList = Array.from(files || []);
+    if (fileList.length === 0) return;
+
+    const entries = [];
+    let errorMessage = "";
+
+    fileList.forEach((file) => {
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        errorMessage = "Format file tidak didukung. Gunakan JPG, PNG, WEBP, atau GIF.";
+        return;
+      }
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        errorMessage = "Ukuran file melebihi batas 2MB. Pilih gambar yang lebih kecil.";
+        return;
+      }
+      entries.push({ file, previewUrl: URL.createObjectURL(file), name: file.name });
+    });
+
+    if (field === "documentation") {
+      setDocumentationUploadError(errorMessage);
+      if (entries.length > 0) {
+        setDocumentationUploads((prev) => [...prev, ...entries]);
+      }
+      return;
+    }
+
+    setInfographicUploadError(errorMessage);
+    if (entries.length > 0) {
+      setInfographicUploads((prev) => [...prev, ...entries]);
+    }
+  };
+
+  const removeImageUrl = (field, index) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: normalizeImageList(prev[field]).filter((_, idx) => idx !== index),
+    }));
+  };
+
+  const removeUploadEntry = (field, index) => {
+    if (field === "documentation") {
+      setDocumentationUploads((prev) => {
+        const item = prev[index];
+        if (item?.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+        return prev.filter((_, idx) => idx !== index);
+      });
+      return;
+    }
+    setInfographicUploads((prev) => {
+      const item = prev[index];
+      if (item?.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+      return prev.filter((_, idx) => idx !== index);
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -1507,6 +1718,49 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
       return;
     }
 
+    let uploadedDocumentationUrls = [];
+    let uploadedInfographicUrls = [];
+
+    if ((documentationUploads.length > 0 || infographicUploads.length > 0) && !supabase) {
+      setStatusMessage("Supabase belum aktif. Unggah dokumentasi/infografis dibatalkan.");
+      return;
+    }
+
+    const uploadAsset = async (file, folder) => {
+      const safeName = `${Date.now()}-${file.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "")}`;
+      const filePath = `${folder}/${safeName}`;
+      const { error: uploadError } = await supabase.storage.from("product-images").upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+      if (uploadError) throw uploadError;
+      const { data: publicData } = supabase.storage.from("product-images").getPublicUrl(filePath);
+      return publicData.publicUrl;
+    };
+
+    if (documentationUploads.length > 0 || infographicUploads.length > 0) {
+      setIsUploadingImage(true);
+      setStatusMessage("Mengunggah dokumentasi dan infografis ke Supabase...");
+      try {
+        for (const item of documentationUploads) {
+          const uploadedUrl = await uploadAsset(item.file, "documentation");
+          uploadedDocumentationUrls.push(uploadedUrl);
+        }
+        for (const item of infographicUploads) {
+          const uploadedUrl = await uploadAsset(item.file, "infographic");
+          uploadedInfographicUrls.push(uploadedUrl);
+        }
+      } catch (err) {
+        console.error("Gagal mengunggah dokumentasi/infografis", err);
+        const friendlyMessage = getUploadErrorMessage(err);
+        setStatusMessage(friendlyMessage);
+        setIsUploadingImage(false);
+        return;
+      } finally {
+        setIsUploadingImage(false);
+      }
+    }
+
     const payload = {
       id: editingId || "prod-" + Date.now(),
       name: form.name,
@@ -1515,6 +1769,8 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
       description: form.description,
       specs: form.specs,
       process: form.process,
+      documentation: [...normalizeImageList(form.documentation), ...uploadedDocumentationUrls],
+      infographic: [...normalizeImageList(form.infographic), ...uploadedInfographicUrls],
     };
 
     const displayProduct = {
@@ -1683,6 +1939,138 @@ function AdminPanel({ products, setProducts, reviews, setReviews, onClose }) {
                   rows={3}
                   className="w-full resize-none rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Dokumentasi (upload foto)
+                </label>
+                <div className="space-y-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                  {normalizeImageList(form.documentation).length === 0 ? (
+                    <p className="text-sm text-stone-500">Belum ada foto dokumentasi.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {normalizeImageList(form.documentation).map((url, index) => (
+                        <div key={index} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3">
+                          <span className="min-w-0 flex-1 truncate text-sm text-stone-700">{url}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeImageUrl("documentation", index)}
+                            className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {documentationUploads.length > 0 && (
+                    <div className="space-y-2 rounded-2xl border border-emerald-200 bg-white p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-emerald-800">Preview Upload Dokumentasi</p>
+                        <span className="text-xs text-stone-500">{documentationUploads.length} file</span>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {documentationUploads.map((item, index) => (
+                          <div key={index} className="group relative overflow-hidden rounded-3xl border border-stone-200 bg-stone-100">
+                            <img
+                              src={item.previewUrl}
+                              alt={item.name}
+                              className="h-32 w-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeUploadEntry("documentation", index)}
+                              className="absolute right-3 top-3 rounded-full bg-white/90 p-2 text-red-600 transition hover:bg-white"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <label className="block rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-500 transition hover:border-emerald-500 hover:text-emerald-700">
+                      Pilih file foto dokumentasi
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => addImageUploads("documentation", e.target.files)}
+                      />
+                    </label>
+                    {documentationUploadError && (
+                      <p className="text-xs font-medium text-red-600">{documentationUploadError}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-xs font-semibold text-stone-600">
+                  Infografis (upload foto)
+                </label>
+                <div className="space-y-4 rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                  {normalizeImageList(form.infographic).length === 0 ? (
+                    <p className="text-sm text-stone-500">Belum ada foto infografis.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {normalizeImageList(form.infographic).map((url, index) => (
+                        <div key={index} className="flex items-center gap-3 rounded-2xl border border-stone-200 bg-white p-3">
+                          <span className="min-w-0 flex-1 truncate text-sm text-stone-700">{url}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeImageUrl("infographic", index)}
+                            className="rounded-full border border-red-200 px-3 py-1 text-xs font-semibold text-red-700 transition hover:bg-red-50"
+                          >
+                            Hapus
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {infographicUploads.length > 0 && (
+                    <div className="space-y-2 rounded-2xl border border-emerald-200 bg-white p-3">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-semibold text-emerald-800">Preview Upload Infografis</p>
+                        <span className="text-xs text-stone-500">{infographicUploads.length} file</span>
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {infographicUploads.map((item, index) => (
+                          <div key={index} className="group relative overflow-hidden rounded-3xl border border-stone-200 bg-stone-100">
+                            <img
+                              src={item.previewUrl}
+                              alt={item.name}
+                              className="h-32 w-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeUploadEntry("infographic", index)}
+                              className="absolute right-3 top-3 rounded-full bg-white/90 p-2 text-red-600 transition hover:bg-white"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <label className="block rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-500 transition hover:border-emerald-500 hover:text-emerald-700">
+                      Pilih file foto infografis
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        className="hidden"
+                        onChange={(e) => addImageUploads("infographic", e.target.files)}
+                      />
+                    </label>
+                    {infographicUploadError && (
+                      <p className="text-xs font-medium text-red-600">{infographicUploadError}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -2014,6 +2402,7 @@ function AppContent() {
         <CatalogSection products={products} onOpenDetail={setSelectedProduct} />
         <ReviewsSection reviews={reviews} onAddReview={handleAddReview} />
         <MembersSection />
+        <DocumentationSection />
         <ContactSection />
       </main>
 
