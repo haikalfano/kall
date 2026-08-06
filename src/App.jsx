@@ -1511,9 +1511,10 @@ function AdminPanel({ products, setProducts, reviews, setReviews, documentationD
   const [replyTextById, setReplyTextById] = useState({});
   const [documentationUploads, setDocumentationUploads] = useState([]);
   const [infographicUploads, setInfographicUploads] = useState([]);
+  const [documentationSectionUploads, setDocumentationSectionUploads] = useState([]);
   const [documentationUploadError, setDocumentationUploadError] = useState("");
+  const [documentationSectionUploadError, setDocumentationSectionUploadError] = useState("");
   const [infographicUploadError, setInfographicUploadError] = useState("");
-  const [newDocumentationImageUrl, setNewDocumentationImageUrl] = useState("");
 
   const resetForm = () => {
     if (previewUrl?.startsWith("blob:")) {
@@ -1537,7 +1538,9 @@ function AdminPanel({ products, setProducts, reviews, setReviews, documentationD
     setImageUploadError("");
     setDocumentationUploads([]);
     setInfographicUploads([]);
+    setDocumentationSectionUploads([]);
     setDocumentationUploadError("");
+    setDocumentationSectionUploadError("");
     setInfographicUploadError("");
     setNewDocumentationImageUrl("");
     setIsUploadingImage(false);
@@ -1706,6 +1709,14 @@ function AdminPanel({ products, setProducts, reviews, setReviews, documentationD
       return;
     }
 
+    if (field === "documentationSection") {
+      setDocumentationSectionUploadError(errorMessage);
+      if (entries.length > 0) {
+        setDocumentationSectionUploads((prev) => [...prev, ...entries]);
+      }
+      return;
+    }
+
     setInfographicUploadError(errorMessage);
     if (entries.length > 0) {
       setInfographicUploads((prev) => [...prev, ...entries]);
@@ -1728,11 +1739,70 @@ function AdminPanel({ products, setProducts, reviews, setReviews, documentationD
       });
       return;
     }
+    if (field === "documentationSection") {
+      setDocumentationSectionUploads((prev) => {
+        const item = prev[index];
+        if (item?.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+        return prev.filter((_, idx) => idx !== index);
+      });
+      return;
+    }
     setInfographicUploads((prev) => {
       const item = prev[index];
       if (item?.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
       return prev.filter((_, idx) => idx !== index);
     });
+  };
+
+  const uploadAsset = async (file, folder) => {
+    const safeName = `${Date.now()}-${file.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "")}`;
+    const filePath = `${folder}/${safeName}`;
+    const { error: uploadError } = await supabase.storage.from("product-images").upload(filePath, file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+    if (uploadError) throw uploadError;
+    const { data: publicData } = supabase.storage.from("product-images").getPublicUrl(filePath);
+    return publicData.publicUrl;
+  };
+
+  const handleUploadDocumentationSection = async () => {
+    if (documentationSectionUploads.length === 0) {
+      setDocumentationSectionUploadError("Pilih foto dokumentasi untuk diunggah.");
+      return;
+    }
+    if (!supabase) {
+      setDocumentationSectionUploadError("Supabase belum terhubung. Unggah dibatalkan.");
+      return;
+    }
+
+    setDocumentationSectionUploadError("");
+    setIsUploadingImage(true);
+    setStatusMessage("Mengunggah foto dokumentasi section...");
+
+    try {
+      const uploadedUrls = [];
+      for (const item of documentationSectionUploads) {
+        const uploadedUrl = await uploadAsset(item.file, "documentation-section");
+        uploadedUrls.push(uploadedUrl);
+      }
+      setDocumentationData((prev) => ({
+        ...prev,
+        images: [...(Array.isArray(prev.images) ? prev.images : []), ...uploadedUrls],
+      }));
+      documentationSectionUploads.forEach((item) => {
+        if (item.previewUrl?.startsWith("blob:")) URL.revokeObjectURL(item.previewUrl);
+      });
+      setDocumentationSectionUploads([]);
+      setStatusMessage("Foto dokumentasi section berhasil diunggah.");
+    } catch (err) {
+      console.error("Gagal mengunggah foto dokumentasi section", err);
+      const friendlyMessage = getUploadErrorMessage(err);
+      setDocumentationSectionUploadError(friendlyMessage);
+      setStatusMessage(friendlyMessage);
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -1755,17 +1825,7 @@ function AdminPanel({ products, setProducts, reviews, setReviews, documentationD
       setStatusMessage("Mengunggah gambar ke Supabase...");
 
       try {
-        const safeName = `${Date.now()}-${imageFile.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "")}`;
-        const filePath = `products/${safeName}`;
-        const { error: uploadError } = await supabase.storage.from("product-images").upload(filePath, imageFile, {
-          cacheControl: "3600",
-          upsert: false,
-        });
-
-        if (uploadError) throw uploadError;
-
-        const { data: publicData } = supabase.storage.from("product-images").getPublicUrl(filePath);
-        finalImageUrl = publicData.publicUrl;
+        finalImageUrl = await uploadAsset(imageFile, "products");
         setForm((prev) => ({ ...prev, image: finalImageUrl }));
       } catch (err) {
         console.error("Gagal mengunggah gambar", err);
@@ -1791,18 +1851,6 @@ function AdminPanel({ products, setProducts, reviews, setReviews, documentationD
       setStatusMessage("Supabase belum aktif. Unggah dokumentasi/infografis dibatalkan.");
       return;
     }
-
-    const uploadAsset = async (file, folder) => {
-      const safeName = `${Date.now()}-${file.name.replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "")}`;
-      const filePath = `${folder}/${safeName}`;
-      const { error: uploadError } = await supabase.storage.from("product-images").upload(filePath, file, {
-        cacheControl: "3600",
-        upsert: false,
-      });
-      if (uploadError) throw uploadError;
-      const { data: publicData } = supabase.storage.from("product-images").getPublicUrl(filePath);
-      return publicData.publicUrl;
-    };
 
     if (documentationUploads.length > 0 || infographicUploads.length > 0) {
       setIsUploadingImage(true);
@@ -2181,29 +2229,55 @@ function AdminPanel({ products, setProducts, reviews, setReviews, documentationD
               )}
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
-              <input
-                type="text"
-                value={newDocumentationImageUrl}
-                onChange={(e) => setNewDocumentationImageUrl(e.target.value)}
-                placeholder="Tambahkan URL foto dokumentasi"
-                className="w-full rounded-xl border border-stone-300 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  const url = newDocumentationImageUrl.trim();
-                  if (!url) return;
-                  setDocumentationData((prev) => ({
-                    ...prev,
-                    images: [...(prev.images || []), url],
-                  }));
-                  setNewDocumentationImageUrl("");
-                }}
-                className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800"
-              >
-                Tambah Foto
-              </button>
+            <div className="mt-4 space-y-4">
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                <label className="block rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm text-stone-500 transition hover:border-emerald-500 hover:text-emerald-700">
+                  Pilih file foto dokumentasi
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={(e) => addImageUploads("documentationSection", e.target.files)}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={handleUploadDocumentationSection}
+                  className="inline-flex items-center justify-center rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800"
+                >
+                  Upload Foto
+                </button>
+              </div>
+              {documentationSectionUploadError && (
+                <p className="text-xs font-medium text-red-600">{documentationSectionUploadError}</p>
+              )}
+              {documentationSectionUploads.length > 0 && (
+                <div className="space-y-2 rounded-2xl border border-emerald-200 bg-white p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-emerald-800">Preview Upload Dokumentasi Section</p>
+                    <span className="text-xs text-stone-500">{documentationSectionUploads.length} file</span>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {documentationSectionUploads.map((item, index) => (
+                      <div key={index} className="group relative overflow-hidden rounded-3xl border border-stone-200 bg-stone-100">
+                        <img
+                          src={item.previewUrl}
+                          alt={item.name}
+                          className="h-32 w-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeUploadEntry("documentationSection", index)}
+                          className="absolute right-3 top-3 rounded-full bg-white/90 p-2 text-red-600 transition hover:bg-white"
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
