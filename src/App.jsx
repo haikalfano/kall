@@ -108,74 +108,8 @@ const initialProducts = [
       "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=900&q=80",
       "https://images.unsplash.com/photo-1481277542470-605612bd2d61?w=900&q=80",
     ],
-  },
-  {
-    id: "prod-002",
-    name: "Gelang Makrame \"Untaian\"",
-    category: "Aksesoris & Fashion",
-    image:
-      "https://images.unsplash.com/photo-1611085583191-a3b181a88401?w=900&q=80",
-    description:
-      "Gelang makrame dengan simpul ganda dan manik kayu alami, dirancang sebagai aksesoris unisex yang ringan namun tetap estetik untuk berbagai gaya busana.",
-    specs:
-      "Tali katun waxed 2mm, manik kayu jati belanda, pengunci kuningan anti karat.",
-    process:
-      "Menggunakan teknik simpul square knot dan spiral knot yang dirangkai berlapis. Setiap gelang diperiksa kekuatan simpulnya sebelum tahap finishing dan pengemasan.",
-  },
-  {
-    id: "prod-003",
-    name: "Vas Bunga Keramik \"Lempung\"",
-    category: "Dekorasi Rumah",
-    image:
-      "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=900&q=80",
-    description:
-      "Vas bunga dari tanah liat lokal yang dibentuk dengan teknik pilin (coil), memiliki tekstur permukaan alami yang menonjolkan kesan artisan dan hangat.",
-    specs:
-      "Tanah liat lokal kualitas tinggi, glasir food-safe non-toxic, dibakar pada suhu 1000°C.",
-    process:
-      "Dibentuk manual tanpa cetakan menggunakan teknik pilin, dikeringkan selama 5 hari, kemudian dibakar dua kali (biscuit firing dan glaze firing) agar hasil akhir kuat dan tahan lama.",
-  },
-  {
-    id: "prod-004",
-    name: "Buku Catatan \"Kertas Kembali\"",
-    category: "Alat Tulis Daur Ulang",
-    image:
-      "https://images.unsplash.com/photo-1531346878377-a5be20888e57?w=900&q=80",
-    description:
-      "Buku catatan dengan kertas daur ulang dari limbah kertas sekolah, dijilid manual menggunakan teknik jahit benang (Coptic binding) agar buku dapat dibuka rata 180 derajat.",
-    specs:
-      "Kertas daur ulang 100 gsm, sampul karton tebal berlapis kain linen, benang katun untuk penjilidan.",
-    process:
-      "Limbah kertas dipilah, dihancurkan, dan dicetak ulang menjadi lembaran baru secara manual. Proses penjilidan dilakukan dengan tangan untuk menjaga kekuatan dan tampilan estetik buku.",
-    
-  },
-  {
-    id: "prod-005",
-    name: "Dompet Kulit Nabati \"Wastra\"",
-    category: "Aksesoris & Fashion",
-    image:
-      "https://images.unsplash.com/photo-1627123424574-724758594e93?w=900&q=80",
-    description:
-      "Dompet ringkas berbahan kulit nabati (vegan leather) dengan motif emboss terinspirasi wastra Nusantara, cocok untuk kebutuhan harian yang ringkas dan tahan lama.",
-    specs:
-      "Kulit nabati berbasis serat nanas, benang nilon jahit ganda, pelapis anti air pada bagian dalam.",
-    process:
-      "Pola dipotong menggunakan cetakan manual, motif emboss dicetak dengan alat press panas, lalu dijahit ganda pada tiap sisi untuk memastikan ketahanan jangka panjang.",
-    
-  },
-  {
-    id: "prod-006",
-    name: "Lampu Hias \"Cahaya Bambu\"",
-    category: "Dekorasi Rumah",
-    image:
-      "https://images.unsplash.com/photo-1543198126-b1cc0e2c4b06?w=900&q=80",
-    description:
-      "Lampu hias meja dari anyaman bambu tipis yang menghasilkan siluet cahaya berpola alami, cocok untuk mempercantik ruang belajar maupun ruang tamu.",
-    specs:
-      "Bilah bambu tipis anti rayap, dudukan kayu mahoni, kabel dan fitting lampu ber-SNI.",
-    process:
-      "Bambu dibelah tipis lalu dianyam mengelilingi rangka bulat, dijemur untuk mengurangi kelembapan, dan dirangkai dengan dudukan kayu serta instalasi kabel yang telah diuji keamanannya.",
-  },
+  }
+  
 ];
 
 const REVIEWS = [];
