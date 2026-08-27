@@ -1463,6 +1463,20 @@ function getUploadErrorMessage(error) {
   return "Gagal mengunggah gambar ke Supabase. Periksa koneksi, bucket, dan kebijakan Storage.";
 }
 
+function getSupabaseRequestErrorMessage(error) {
+  const message = error?.message || "";
+
+  if (message === "Failed to fetch" || error?.name === "TypeError") {
+    return "Supabase tidak dapat dihubungi. Periksa VITE_SUPABASE_URL di file .env, koneksi internet, dan restart server Vite setelah mengubah .env.";
+  }
+
+  if (message.includes("policy") || message.includes("permission") || message.includes("Forbidden")) {
+    return "Penghapusan ditolak Supabase. Jalankan policy DELETE pada supabase-schema.sql di Supabase SQL Editor.";
+  }
+
+  return message || "Supabase gagal menghapus data.";
+}
+
 function ProductImageUploader({
   previewUrl,
   selectedFileName,
@@ -1694,10 +1708,14 @@ function AdminPanel({ products, setProducts, reviews, setReviews, documentationD
 
   const handleDelete = async (id) => {
     if (supabase) {
-      const { error } = await supabase.from(PRODUCTS_TABLE).delete().eq("id", id);
-      if (error) {
+      try {
+        const { error } = await supabase.from(PRODUCTS_TABLE).delete().eq("id", id);
+        if (error) {
+          throw error;
+        }
+      } catch (error) {
         console.error("Supabase delete error:", error);
-        setStatusMessage("Gagal menghapus di Supabase. " + error.message);
+        setStatusMessage("Gagal menghapus di Supabase. " + getSupabaseRequestErrorMessage(error));
         return;
       }
     }
