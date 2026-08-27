@@ -59,3 +59,25 @@ CREATE POLICY "Public can update reviews"
 DROP POLICY IF EXISTS "Public can delete reviews" ON showcase_reviews;
 CREATE POLICY "Public can delete reviews"
   ON showcase_reviews FOR DELETE TO anon USING (true);
+
+-- Create the public bucket used by the admin image uploader.
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('product-images', 'product-images', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Public can read product images" ON storage.objects;
+CREATE POLICY "Public can read product images"
+  ON storage.objects FOR SELECT TO anon USING (bucket_id = 'product-images');
+
+DROP POLICY IF EXISTS "Public can upload product images" ON storage.objects;
+CREATE POLICY "Public can upload product images"
+  ON storage.objects FOR INSERT TO anon WITH CHECK (bucket_id = 'product-images');
+
+DROP POLICY IF EXISTS "Public can update product images" ON storage.objects;
+CREATE POLICY "Public can update product images"
+  ON storage.objects FOR UPDATE TO anon USING (bucket_id = 'product-images')
+  WITH CHECK (bucket_id = 'product-images');
+
+DROP POLICY IF EXISTS "Public can delete product images" ON storage.objects;
+CREATE POLICY "Public can delete product images"
+  ON storage.objects FOR DELETE TO anon USING (bucket_id = 'product-images');
